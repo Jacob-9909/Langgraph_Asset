@@ -12,7 +12,7 @@ from ..state import AssetAdvisoryState
 from ..tools.tavily_search import require_tavily_api_key, tavily_search_body
 
 
-def news_research_agent(_state: AssetAdvisoryState) -> dict[str, Any]:
+def news_research_agent(_state: AssetAdvisoryState) -> dict[str, Any]: # 거시 경제 리서치 노드
     require_tavily_api_key()
     tool = TavilySearch(
         max_results=4,
@@ -35,15 +35,15 @@ def news_research_agent(_state: AssetAdvisoryState) -> dict[str, Any]:
         ),
     ]
 
-    def one(section: tuple[str, str]) -> str:
+    def one(section: tuple[str, str]) -> str: # 하나의 검색 결과를 처리하는 함수
         label, query = section
         body = tavily_search_body(tool, query)
         return f"### {label}\n{body}"
 
-    with ThreadPoolExecutor(max_workers=len(specs)) as pool:
+    with ThreadPoolExecutor(max_workers=len(specs)) as pool: # one 함수를 병렬로 실행하는 풀
         sections = list(pool.map(one, specs))
 
-    macro_market_notes = "\n\n".join(sections)
+    macro_market_notes = "\n\n".join(sections) # 결과 병합
     macro_market_notes = macro_market_notes[:16_000]
 
     return {

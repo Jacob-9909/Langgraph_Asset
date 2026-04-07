@@ -28,7 +28,7 @@ def tax_research_agent(state: AssetAdvisoryState) -> dict[str, Any]:
         sections = list(pool.map(one, specs))
 
     tw = (profile.get("tax_wrappers_note") or "").strip()
-    mode = "mock" if nts_law_use_mock() else "live"
+    mode = "mock" if nts_law_use_mock() else "live" # OC 미설정 또는 NTS_LAW_FORCE_MOCK 시 mock - open api 신청 중
     header_lines = [
         "[국세청 법령해석 목록 기반 맥락 — 세무 자문·유권해석 대체 아님. 홈택스·국세청 공식 확인 필요]",
         f"소스: law.go.kr ntsCgmExpc ({mode})",
