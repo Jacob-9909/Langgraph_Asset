@@ -16,7 +16,7 @@ from ..tools.naver_web import (
 )
 
 
-def product_research_agent(state: AssetAdvisoryState) -> dict[str, Any]:
+def product_research_agent(state: AssetAdvisoryState) -> dict[str, Any]: # synchronous node -> async 변경 예정
     require_naver_search_keys()
     profile = state.get("user_profile") or {}
     tail = naver_query_suffix(profile)
@@ -45,7 +45,7 @@ def product_research_agent(state: AssetAdvisoryState) -> dict[str, Any]:
         ),
     ]
 
-    with ThreadPoolExecutor(max_workers=len(query_specs)) as pool:
+    with ThreadPoolExecutor(max_workers=len(query_specs)) as pool: # 단순 I/O request 이므로 ThreadPoolExecutor 사용
         futures = {
             name: pool.submit(
                 partial(naver_web_snippets, primary, 4, fallback_query=fallback)
