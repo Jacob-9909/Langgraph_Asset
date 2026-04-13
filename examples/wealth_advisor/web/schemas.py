@@ -43,6 +43,24 @@ class PendingUserResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class AdminUserResponse(BaseModel):
+    id: int
+    email: str
+    name: str
+    is_approved: bool
+    is_admin: bool
+    asset_count: int = 0
+    total_assets_krw: int = 0
+    created_at: datetime
+
+
+class AdminStatsResponse(BaseModel):
+    total_users: int
+    approved_users: int
+    pending_users: int
+    total_assets_all_krw: int
+
+
 # ── Profile ───────────────────────────────────────────
 
 class ProfileUpdate(BaseModel):

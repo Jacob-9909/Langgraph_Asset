@@ -99,7 +99,7 @@ function setAuth(data) {
   userName = data.name;
   localStorage.setItem("wa_token", token);
   localStorage.setItem("wa_name", userName);
-  showDashboard();
+  routeAfterLogin();
 }
 
 function logout() {
@@ -111,18 +111,46 @@ function logout() {
 }
 
 /* ── Routing ───────────────────────────────────────── */
-function showAuth() {
-  document.getElementById("auth-page").classList.remove("hidden");
+function hideAllPages() {
+  document.getElementById("auth-page").classList.add("hidden");
   document.getElementById("dashboard-page").classList.add("hidden");
+  document.getElementById("admin-page").classList.add("hidden");
+}
+
+function showAuth() {
+  hideAllPages();
+  document.getElementById("auth-page").classList.remove("hidden");
 }
 
 function showDashboard() {
-  document.getElementById("auth-page").classList.add("hidden");
+  hideAllPages();
   document.getElementById("dashboard-page").classList.remove("hidden");
   document.getElementById("user-name").textContent = userName || "";
   loadDashboard();
   loadAssets();
   loadResults();
+}
+
+function showAdminPage() {
+  hideAllPages();
+  document.getElementById("admin-page").classList.remove("hidden");
+  document.getElementById("admin-user-name").textContent = userName || "";
+  loadAdminStats();
+  loadAdminUsers();
+  loadPendingUsers();
+}
+
+async function routeAfterLogin() {
+  try {
+    const d = await api("/api/dashboard");
+    if (d.is_admin) {
+      showAdminPage();
+    } else {
+      showDashboard();
+    }
+  } catch {
+    showDashboard();
+  }
 }
 
 /* ── Dashboard ─────────────────────────────────────── */
@@ -139,14 +167,6 @@ async function loadDashboard() {
 
     renderProfile(d.profile);
     renderChart(d.assets_by_type);
-
-    // Admin panel
-    if (d.is_admin) {
-      document.getElementById("admin-panel").classList.remove("hidden");
-      loadPendingUsers();
-    } else {
-      document.getElementById("admin-panel").classList.add("hidden");
-    }
 
     if (d.recent_recommendation) {
       document.getElementById("agent-result").classList.remove("hidden");
@@ -609,6 +629,44 @@ function closeModal(id) {
 }
 
 /* ── Admin ─────────────────────────────────────────── */
+async function loadAdminStats() {
+  try {
+    const s = await api("/api/admin/stats");
+    document.getElementById("stat-total").textContent = s.total_users;
+    document.getElementById("stat-approved").textContent = s.approved_users;
+    document.getElementById("stat-pending").textContent = s.pending_users;
+    document.getElementById("stat-total-assets").textContent = formatKRW(s.total_assets_all_krw);
+    document.getElementById("admin-pending-section").classList.toggle("hidden", s.pending_users === 0);
+  } catch {}
+}
+
+async function loadAdminUsers() {
+  try {
+    const users = await api("/api/admin/users");
+    const tbody = document.getElementById("admin-users-tbody");
+    tbody.innerHTML = users.map(u => {
+      const statusBadge = u.is_admin
+        ? '<span class="px-2 py-0.5 text-xs rounded bg-navy-800 text-white">관리자</span>'
+        : u.is_approved
+          ? '<span class="px-2 py-0.5 text-xs rounded bg-green-100 text-green-700">승인</span>'
+          : '<span class="px-2 py-0.5 text-xs rounded bg-amber-100 text-amber-700">대기</span>';
+      const actions = u.is_admin ? '-' : u.is_approved
+        ? `<button onclick="deleteUser(${u.id}, '${esc(u.name)}')" class="text-xs text-gray-400 hover:text-red-500">삭제</button>`
+        : `<button onclick="approveUser(${u.id})" class="text-xs text-green-600 hover:underline mr-1">승인</button>
+           <button onclick="deleteUser(${u.id}, '${esc(u.name)}')" class="text-xs text-gray-400 hover:text-red-500">삭제</button>`;
+      return `<tr class="hover:bg-gray-50">
+        <td class="px-3 py-2.5">${esc(u.name)}</td>
+        <td class="px-3 py-2.5 text-gray-500">${esc(u.email)}</td>
+        <td class="px-3 py-2.5 text-center">${statusBadge}</td>
+        <td class="px-3 py-2.5 text-right tabular-nums">${u.asset_count}개</td>
+        <td class="px-3 py-2.5 text-right tabular-nums">${formatKRW(u.total_assets_krw)}</td>
+        <td class="px-3 py-2.5 text-gray-400">${new Date(u.created_at).toLocaleDateString("ko-KR")}</td>
+        <td class="px-3 py-2.5 text-center">${actions}</td>
+      </tr>`;
+    }).join("");
+  } catch {}
+}
+
 async function loadPendingUsers() {
   try {
     const users = await api("/api/admin/pending");
@@ -636,7 +694,8 @@ async function loadPendingUsers() {
 async function approveUser(id) {
   try {
     const r = await api(`/api/admin/approve/${id}`, { method: "POST" });
-    alert(r.message);
+    loadAdminStats();
+    loadAdminUsers();
     loadPendingUsers();
   } catch (err) {
     alert(err.message);
@@ -644,11 +703,23 @@ async function approveUser(id) {
 }
 
 async function rejectUser(id) {
-  if (!confirm("이 사용자의 가입을 거부하시겠습니까? 계정이 삭제됩니다.")) return;
+  if (!confirm("가입을 거부하시겠습니까? 계정이 삭제됩니다.")) return;
   try {
-    const r = await api(`/api/admin/reject/${id}`, { method: "DELETE" });
-    alert(r.message);
+    await api(`/api/admin/reject/${id}`, { method: "DELETE" });
+    loadAdminStats();
+    loadAdminUsers();
     loadPendingUsers();
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+async function deleteUser(id, name) {
+  if (!confirm(`${name} 사용자를 삭제하시겠습니까?`)) return;
+  try {
+    await api(`/api/admin/reject/${id}`, { method: "DELETE" });
+    loadAdminStats();
+    loadAdminUsers();
   } catch (err) {
     alert(err.message);
   }
@@ -659,7 +730,7 @@ document.getElementById("af-qty")?.addEventListener("input", autoCalcAmount);
 document.getElementById("af-cur-price")?.addEventListener("input", autoCalcAmount);
 
 if (token) {
-  showDashboard();
+  routeAfterLogin();
 } else {
   showAuth();
 }
