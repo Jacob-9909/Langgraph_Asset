@@ -8,7 +8,7 @@ LangGraph 실습 프로젝트 (uv 관리).
   cp .env.example .env  # API 키 + 선택 LANGFUSE_* (관측)
   uv run python examples/02_llm_messages_graph.py
   uv run python examples/03_quickstart_calculator_graph_api.py  # Gemini
-  uv run python examples/04_user_asset_policy_multi_agent_hitl.py  # 로직은 examples/user_asset_hitl_04/
+  uv run python examples/run_wealth_advisor.py  # 로직은 examples/wealth_advisor/
 """
 
 

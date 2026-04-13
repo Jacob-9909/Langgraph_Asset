@@ -22,10 +22,10 @@ cp .env.example .env
 ```bash
 uv sync
 uv run python examples/03_quickstart_calculator_graph_api.py
-uv run python examples/04_user_asset_policy_multi_agent_hitl.py
+uv run python examples/run_wealth_advisor.py
 ```
 
-예제 04 본체: `examples/user_asset_hitl_04/` (노드·도구·그래프·CLI 분리).
+Wealth Advisor 본체: `examples/wealth_advisor/` (노드·도구·그래프·CLI 분리).
 
 ## 문서
 

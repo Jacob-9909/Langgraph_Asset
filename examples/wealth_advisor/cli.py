@@ -19,6 +19,7 @@ from .graph import build_graph
 from .logging_utils import configure_logging
 from .state import AssetAdvisoryState
 from .tools.naver_web import require_naver_search_keys
+from .tools.nts_law import require_law_go_kr_oc
 
 
 def initial_state(user_line: str) -> AssetAdvisoryState:
@@ -199,6 +200,7 @@ def main() -> None:
         )
     try:
         require_naver_search_keys()
+        require_law_go_kr_oc()
     except ValueError as exc:
         raise SystemExit(str(exc)) from exc
 

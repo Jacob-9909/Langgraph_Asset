@@ -31,7 +31,6 @@ _ENV_KEYS_04 = frozenset(
         "NAVER_CLIENT_SECRET",
         "TAVILY_API_KEY",
         "LAW_GO_KR_OC",
-        "NTS_LAW_FORCE_MOCK",
     }
 )
 

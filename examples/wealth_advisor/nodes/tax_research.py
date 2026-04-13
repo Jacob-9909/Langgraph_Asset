@@ -1,4 +1,4 @@
-"""세법 맥락 (국세청 법령해석 API / mock)."""
+"""세법 맥락 (국가법령정보 국세청 법령해석 목록 API, ntsCgmExpc)."""
 
 from __future__ import annotations
 
@@ -10,14 +10,15 @@ from langchain.messages import AIMessage
 from ..state import AssetAdvisoryState
 from ..tools.nts_law import (
     nts_cgm_search_once,
-    nts_law_use_mock,
-    tax_research_query_specs,
+    require_law_go_kr_oc,
+    resolve_nts_law_search_specs,
 )
 
 
 def tax_research_agent(state: AssetAdvisoryState) -> dict[str, Any]:
+    require_law_go_kr_oc()
     profile = state.get("user_profile") or {}
-    specs = tax_research_query_specs(profile)
+    specs = resolve_nts_law_search_specs(profile)
 
     def one(section: tuple[str, str]) -> str:
         label, query = section
@@ -28,15 +29,22 @@ def tax_research_agent(state: AssetAdvisoryState) -> dict[str, Any]:
         sections = list(pool.map(one, specs))
 
     tw = (profile.get("tax_wrappers_note") or "").strip()
-    mode = "mock" if nts_law_use_mock() else "live" # OC 미설정 또는 NTS_LAW_FORCE_MOCK 시 mock - open api 신청 중
-    header_lines = [
-        "[국세청 법령해석 목록 기반 맥락 — 세무 자문·유권해석 대체 아님. 홈택스·국세청 공식 확인 필요]",
-        f"소스: law.go.kr ntsCgmExpc ({mode})",
-        f"employment_type={profile.get('employment_type')!s}, "
-        f"annual_income_band={profile.get('annual_income_band')!s}",
-    ]
+    emp = profile.get("employment_type")
+    band = profile.get("annual_income_band")
+    hints: list[str] = []
+    if emp and str(emp).lower() != "unknown":
+        hints.append(f"질의맥락·소득형태={emp}")
+    if band and str(band).lower() not in ("unknown", ""):
+        hints.append(f"연소득구간={band}")
     if tw:
-        header_lines.append(f"고객 메모(기존 계좌): {tw}")
+        hints.append(f"고객세제메모={tw}")
+    hint_line = " · ".join(hints) if hints else ""
+
+    header_lines = [
+        "국세청 법령해석 '목록' 스니펫(유권해석 아님). 세액·요건은 국세청·홈택스 확인.",
+    ]
+    if hint_line:
+        header_lines.append(hint_line)
     tax_market_notes = "\n".join(header_lines) + "\n\n" + "\n\n".join(sections)
     tax_market_notes = tax_market_notes[:18_000]
 
@@ -45,7 +53,7 @@ def tax_research_agent(state: AssetAdvisoryState) -> dict[str, Any]:
         "messages": [
             AIMessage(
                 content=(
-                    f"[세법 맥락·국세청 법령해석 API, {mode}] 주제 {len(specs)}건 병렬, "
+                    f"[세법 맥락·국세청 법령해석 API] 주제 {len(specs)}건 병렬, "
                     f"총 {len(tax_market_notes)}자"
                 )
             )

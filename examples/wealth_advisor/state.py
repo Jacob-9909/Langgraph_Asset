@@ -80,3 +80,12 @@ class ExtractedUserProfile(BaseModel):
             "연금저축·퇴직연금 DC·IRP·ISA 등 이미 쓰는 세제 혜택 계좌·납입 여부 한 줄. 없으면 빈 문자열."
         ),
     )
+    nts_law_api_queries: list[str] = Field(
+        default_factory=list,
+        description=(
+            "국가법령정보 국세청 법령해석 검색(law.go.kr target=ntsCgmExpc)용 키워드. "
+            "사용자 질문·목표·세제 메모를 반영하되, 포털 검색에 잘 걸리는 짧은 세법 용어로 바꾼다 "
+            "(예: '절세'→연말정산 또는 세액공제, 'IRP'→IRP 또는 개인형퇴직연금, '부가세'→부가가치세). "
+            "한 키워드당 2~12자 한국어 위주, 서로 다른 주제 최대 5개, 중복·빈 문자열 금지."
+        ),
+    )

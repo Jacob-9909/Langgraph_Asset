@@ -15,3 +15,7 @@ dependencies = [
     "python-dotenv>=1.2.2",
     "requests>=2.33.1",
 ]
+
+[project.optional-dependencies]
+# 국세청 법령해석 상세(taxlaw.nts.go.kr) 본문: JS 렌더 후 추출 — 설치 후 `playwright install chromium`
+nts-law-detail = ["playwright>=1.49.0"]

@@ -35,6 +35,7 @@ def parse_profile_json(text: str) -> dict[str, Any]:
         "employment_type": "unknown",
         "annual_income_band": "unknown",
         "tax_wrappers_note": "",
+        "nts_law_api_queries": [],
     }
 
 
