@@ -224,10 +224,32 @@ async function loadAssets() {
   }
 }
 
+function assetDetail(a) {
+  const parts = [];
+  if (a.quantity && a.buy_price_krw) {
+    parts.push(`${a.quantity}주 x ${formatKRW(a.buy_price_krw)}`);
+  }
+  if (a.current_price_krw) {
+    const label = a.asset_type === "real_estate" ? "시세" : "현재가";
+    parts.push(`${label} ${formatKRW(a.current_price_krw)}`);
+  }
+  if (a.quantity && a.buy_price_krw && a.current_price_krw) {
+    const cost = a.quantity * a.buy_price_krw;
+    const pct = cost > 0 ? ((a.current_price_krw * a.quantity - cost) / cost * 100).toFixed(1) : 0;
+    const sign = pct >= 0 ? "+" : "";
+    const color = pct >= 0 ? "text-red-600" : "text-blue-600";
+    parts.push(`<span class="${color}">${sign}${pct}%</span>`);
+  }
+  if (a.interest_rate) parts.push(`금리 ${a.interest_rate}%`);
+  if (a.maturity_date) parts.push(`만기 ${a.maturity_date}`);
+  if (a.start_date) parts.push(`시작 ${a.start_date}`);
+  return parts.length ? parts.join(" / ") : "-";
+}
+
 function renderAssetsTable() {
   const tbody = document.getElementById("assets-tbody");
   if (!assetsData.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="px-3 py-8 text-center text-gray-300 text-sm">등록된 자산이 없습니다</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" class="px-3 py-8 text-center text-gray-300 text-sm">등록된 자산이 없습니다</td></tr>';
     return;
   }
   tbody.innerHTML = assetsData.map(a => `
@@ -235,14 +257,67 @@ function renderAssetsTable() {
       <td class="px-3 py-2.5 text-sm">${esc(a.asset_name)}</td>
       <td class="px-3 py-2.5 text-xs text-gray-500">${ASSET_TYPE_LABELS[a.asset_type] || a.asset_type}</td>
       <td class="px-3 py-2.5 text-sm text-right tabular-nums">${formatKRW(a.amount_krw)}</td>
-      <td class="px-3 py-2.5 text-sm text-right tabular-nums text-gray-500">${a.interest_rate ? a.interest_rate + "%" : "-"}</td>
-      <td class="px-3 py-2.5 text-sm text-gray-500">${a.maturity_date || "-"}</td>
+      <td class="px-3 py-2.5 text-xs text-gray-400">${assetDetail(a)}</td>
       <td class="px-3 py-2.5 text-center">
         <button onclick="editAsset(${a.id})" class="text-navy-600 hover:underline text-xs mr-1">수정</button>
         <button onclick="deleteAsset(${a.id})" class="text-gray-400 hover:text-red-500 text-xs">삭제</button>
       </td>
     </tr>
   `).join("");
+}
+
+/* ── Asset type field config ───────────────────────── */
+const ASSET_FIELD_CONFIG = {
+  deposit:     { groups: ["rate"], amountLabel: "예치 금액 (원)" },
+  savings:     { groups: ["rate"], amountLabel: "총 납입 금액 (원)" },
+  stock:       { groups: ["quantity"], amountLabel: "총 평가금액 (원)", amountHint: "수량 x 현재가로 자동 계산됩니다" },
+  bond:        { groups: ["rate"], amountLabel: "매입 금액 (원)" },
+  fund:        { groups: ["period"], amountLabel: "평가 금액 (원)" },
+  insurance:   { groups: ["period"], amountLabel: "납입 총액 (원)" },
+  pension:     { groups: ["period"], amountLabel: "적립 총액 (원)" },
+  real_estate: { groups: ["realestate"], amountLabel: "현재 시세 (원)", amountHint: "현재 시세를 입력하세요" },
+  crypto:      { groups: ["quantity"], amountLabel: "총 평가금액 (원)", amountHint: "수량 x 현재가로 자동 계산됩니다" },
+  cash:        { groups: ["rate"], amountLabel: "보유 금액 (원)" },
+  other:       { groups: [], amountLabel: "금액 (원)" },
+};
+
+function onAssetTypeChange() {
+  const type = document.getElementById("af-type").value;
+  const cfg = ASSET_FIELD_CONFIG[type] || { groups: [], amountLabel: "금액 (원)" };
+
+  // Toggle field groups
+  ["rate", "quantity", "realestate", "period"].forEach(g => {
+    const el = document.getElementById(`af-group-${g}`);
+    if (el) el.classList.toggle("hidden", !cfg.groups.includes(g));
+  });
+
+  // Amount label & hint
+  document.getElementById("af-amount-label").textContent = cfg.amountLabel;
+  const hint = document.getElementById("af-amount-hint");
+  if (cfg.amountHint) {
+    hint.textContent = cfg.amountHint;
+    hint.classList.remove("hidden");
+  } else {
+    hint.classList.add("hidden");
+  }
+
+  // Auto-calc for stock/crypto
+  if (cfg.groups.includes("quantity")) {
+    document.getElementById("af-amount").readOnly = true;
+    document.getElementById("af-amount").classList.add("bg-gray-50");
+    autoCalcAmount();
+  } else {
+    document.getElementById("af-amount").readOnly = false;
+    document.getElementById("af-amount").classList.remove("bg-gray-50");
+  }
+}
+
+function autoCalcAmount() {
+  const qty = parseFloat(document.getElementById("af-qty").value) || 0;
+  const cur = parseInt(document.getElementById("af-cur-price").value) || 0;
+  if (qty && cur) {
+    document.getElementById("af-amount").value = Math.round(qty * cur);
+  }
 }
 
 function openAssetModal(asset) {
@@ -253,7 +328,15 @@ function openAssetModal(asset) {
   document.getElementById("af-amount").value = asset?.amount_krw || "";
   document.getElementById("af-rate").value = asset?.interest_rate || "";
   document.getElementById("af-maturity").value = asset?.maturity_date || "";
+  document.getElementById("af-qty").value = asset?.quantity || "";
+  document.getElementById("af-buy-price").value = asset?.buy_price_krw || "";
+  document.getElementById("af-cur-price").value = asset?.current_price_krw || "";
+  document.getElementById("af-re-buy").value = asset?.buy_price_krw || "";
+  document.getElementById("af-re-current").value = asset?.current_price_krw || "";
+  document.getElementById("af-start").value = asset?.start_date || "";
+  document.getElementById("af-period-maturity").value = asset?.maturity_date || "";
   document.getElementById("af-notes").value = asset?.notes || "";
+  onAssetTypeChange();
   document.getElementById("asset-modal").classList.remove("hidden");
 }
 
@@ -262,17 +345,46 @@ function editAsset(id) {
   if (asset) openAssetModal(asset);
 }
 
+function collectAssetBody() {
+  const type = document.getElementById("af-type").value;
+  const cfg = ASSET_FIELD_CONFIG[type] || { groups: [] };
+  const body = {
+    asset_type: type,
+    asset_name: document.getElementById("af-name").value,
+    amount_krw: parseInt(document.getElementById("af-amount").value) || 0,
+    notes: document.getElementById("af-notes").value || null,
+    interest_rate: null,
+    quantity: null,
+    buy_price_krw: null,
+    current_price_krw: null,
+    start_date: null,
+    maturity_date: null,
+  };
+
+  if (cfg.groups.includes("rate")) {
+    body.interest_rate = parseFloat(document.getElementById("af-rate").value) || null;
+    body.maturity_date = document.getElementById("af-maturity").value || null;
+  }
+  if (cfg.groups.includes("quantity")) {
+    body.quantity = parseFloat(document.getElementById("af-qty").value) || null;
+    body.buy_price_krw = parseInt(document.getElementById("af-buy-price").value) || null;
+    body.current_price_krw = parseInt(document.getElementById("af-cur-price").value) || null;
+  }
+  if (cfg.groups.includes("realestate")) {
+    body.buy_price_krw = parseInt(document.getElementById("af-re-buy").value) || null;
+    body.current_price_krw = parseInt(document.getElementById("af-re-current").value) || null;
+  }
+  if (cfg.groups.includes("period")) {
+    body.start_date = document.getElementById("af-start").value || null;
+    body.maturity_date = document.getElementById("af-period-maturity").value || null;
+  }
+  return body;
+}
+
 async function saveAsset(e) {
   e.preventDefault();
   const editId = document.getElementById("asset-edit-id").value;
-  const body = {
-    asset_type: document.getElementById("af-type").value,
-    asset_name: document.getElementById("af-name").value,
-    amount_krw: parseInt(document.getElementById("af-amount").value),
-    interest_rate: parseFloat(document.getElementById("af-rate").value) || null,
-    maturity_date: document.getElementById("af-maturity").value || null,
-    notes: document.getElementById("af-notes").value || null,
-  };
+  const body = collectAssetBody();
   try {
     if (editId) {
       await api(`/api/assets/${editId}`, { method: "PUT", body: JSON.stringify(body) });
@@ -481,6 +593,9 @@ function closeModal(id) {
 }
 
 /* ── Init ──────────────────────────────────────────── */
+document.getElementById("af-qty")?.addEventListener("input", autoCalcAmount);
+document.getElementById("af-cur-price")?.addEventListener("input", autoCalcAmount);
+
 if (token) {
   showDashboard();
 } else {

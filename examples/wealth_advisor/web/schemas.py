@@ -53,6 +53,9 @@ class AssetCreate(BaseModel):
     asset_name: str
     amount_krw: int
     interest_rate: float | None = None
+    quantity: float | None = None
+    buy_price_krw: int | None = None
+    current_price_krw: int | None = None
     start_date: str | None = None
     maturity_date: str | None = None
     notes: str | None = None

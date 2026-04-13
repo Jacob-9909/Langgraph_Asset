@@ -127,14 +127,13 @@
               <tr class="border-b border-gray-200">
                 <th class="text-left px-3 py-2 text-xs font-medium text-gray-400 uppercase tracking-wider">자산명</th>
                 <th class="text-left px-3 py-2 text-xs font-medium text-gray-400 uppercase tracking-wider">유형</th>
-                <th class="text-right px-3 py-2 text-xs font-medium text-gray-400 uppercase tracking-wider">금액</th>
-                <th class="text-right px-3 py-2 text-xs font-medium text-gray-400 uppercase tracking-wider">금리</th>
-                <th class="text-left px-3 py-2 text-xs font-medium text-gray-400 uppercase tracking-wider">만기</th>
+                <th class="text-right px-3 py-2 text-xs font-medium text-gray-400 uppercase tracking-wider">평가금액</th>
+                <th class="text-left px-3 py-2 text-xs font-medium text-gray-400 uppercase tracking-wider">상세</th>
                 <th class="text-center px-3 py-2 text-xs font-medium text-gray-400 uppercase tracking-wider">관리</th>
               </tr>
             </thead>
             <tbody id="assets-tbody" class="divide-y divide-gray-100">
-              <tr><td colspan="6" class="px-3 py-8 text-center text-gray-300 text-sm">등록된 자산이 없습니다</td></tr>
+              <tr><td colspan="5" class="px-3 py-8 text-center text-gray-300 text-sm">등록된 자산이 없습니다</td></tr>
             </tbody>
           </table>
         </div>
@@ -277,11 +276,12 @@
         <input type="hidden" id="asset-edit-id" />
         <div>
           <label class="block text-xs font-medium text-gray-500 mb-1">자산 유형</label>
-          <select id="af-type" required class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-navy-400 focus:outline-none">
+          <select id="af-type" required onchange="onAssetTypeChange()"
+            class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-navy-400 focus:outline-none">
             <option value="">선택</option>
             <option value="deposit">예금</option>
             <option value="savings">적금</option>
-            <option value="stock">주식</option>
+            <option value="stock">주식/ETF</option>
             <option value="bond">채권</option>
             <option value="fund">펀드</option>
             <option value="insurance">보험</option>
@@ -297,12 +297,52 @@
           <input type="text" id="af-name" required placeholder="KB국민은행 정기예금"
             class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-navy-400 focus:outline-none" />
         </div>
-        <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">금액 (원)</label>
+
+        <!-- 공통: 총 평가금액 -->
+        <div id="af-group-amount">
+          <label id="af-amount-label" class="block text-xs font-medium text-gray-500 mb-1">금액 (원)</label>
           <input type="number" id="af-amount" required placeholder="10000000"
             class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-navy-400 focus:outline-none" />
+          <p id="af-amount-hint" class="text-xs text-gray-400 mt-0.5 hidden"></p>
         </div>
-        <div class="grid grid-cols-2 gap-2">
+
+        <!-- 주식/암호화폐: 수량, 매수단가, 현재가 -->
+        <div id="af-group-quantity" class="hidden">
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="block text-xs font-medium text-gray-500 mb-1">수량</label>
+              <input type="number" id="af-qty" step="any" placeholder="10"
+                class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-navy-400 focus:outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-500 mb-1">매수단가 (원)</label>
+              <input type="number" id="af-buy-price" placeholder="65000"
+                class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-navy-400 focus:outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-500 mb-1">현재가 (원)</label>
+              <input type="number" id="af-cur-price" placeholder="72000"
+                class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-navy-400 focus:outline-none" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 부동산: 매입가, 현재 시세 -->
+        <div id="af-group-realestate" class="hidden grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">매입가 (원)</label>
+            <input type="number" id="af-re-buy" placeholder="300000000"
+              class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-navy-400 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">현재 시세 (원)</label>
+            <input type="number" id="af-re-current" placeholder="350000000"
+              class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-navy-400 focus:outline-none" />
+          </div>
+        </div>
+
+        <!-- 예금/적금/채권/현금: 금리, 만기 -->
+        <div id="af-group-rate" class="hidden grid grid-cols-2 gap-2">
           <div>
             <label class="block text-xs font-medium text-gray-500 mb-1">금리 (%)</label>
             <input type="number" id="af-rate" step="0.01" placeholder="3.50"
@@ -314,6 +354,21 @@
               class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-navy-400 focus:outline-none" />
           </div>
         </div>
+
+        <!-- 보험/연금/펀드: 시작일, 만기 -->
+        <div id="af-group-period" class="hidden grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">시작일</label>
+            <input type="date" id="af-start"
+              class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-navy-400 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">만기일</label>
+            <input type="date" id="af-period-maturity"
+              class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-navy-400 focus:outline-none" />
+          </div>
+        </div>
+
         <div>
           <label class="block text-xs font-medium text-gray-500 mb-1">메모</label>
           <input type="text" id="af-notes" placeholder="선택사항"
