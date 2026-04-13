@@ -6,6 +6,6 @@ from langgraph_bootstrap import load_dotenv_for_example_04
 
 load_dotenv_for_example_04()
 
-from .graph import build_graph, route_after_profile  # noqa: E402
+from .advisor.graph import build_graph, route_after_profile  # noqa: E402
 
 __all__ = ["build_graph", "route_after_profile"]

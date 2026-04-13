@@ -14,12 +14,12 @@ from langgraph.types import Command
 
 from langgraph_bootstrap import flush_langfuse_traces, merge_run_config
 
-from .config import USE_MEMORY_CHECKPOINTER, USER_INPUT_EXAMPLES
-from .graph import build_graph
-from .logging_utils import configure_logging
-from .state import AssetAdvisoryState
-from .tools.naver_web import require_naver_search_keys
-from .tools.nts_law import require_law_go_kr_oc
+from .advisor.config import USE_MEMORY_CHECKPOINTER, USER_INPUT_EXAMPLES
+from .advisor.graph import build_graph
+from .advisor.logging_utils import configure_logging
+from .advisor.state import AssetAdvisoryState
+from .advisor.tools.naver_web import require_naver_search_keys
+from .advisor.tools.nts_law import require_law_go_kr_oc
 
 
 def initial_state(user_line: str) -> AssetAdvisoryState:

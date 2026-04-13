@@ -42,6 +42,9 @@ class User(Base):
     agent_results: Mapped[list[AgentResult]] = relationship( # 1 : N
         back_populates="user", cascade="all, delete-orphan", order_by="AgentResult.executed_at.desc()"
     )
+    backtest_results: Mapped[list[BacktestResult]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", order_by="BacktestResult.executed_at.desc()"
+    )
 
 
 class UserProfile(Base):
@@ -106,3 +109,30 @@ class AgentResult(Base):
     )
 
     user: Mapped[User] = relationship(back_populates="agent_results")
+
+
+class BacktestResult(Base):
+    __tablename__ = "wa_backtest_results"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("wa_users.id", ondelete="CASCADE")
+    )
+    ticker: Mapped[str] = mapped_column(String(20), nullable=False)
+    strategy: Mapped[str] = mapped_column(String(50), nullable=False)
+    start_date: Mapped[str] = mapped_column(String(10), nullable=False)
+    end_date: Mapped[str] = mapped_column(String(10), nullable=False)
+    initial_capital: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    total_return: Mapped[float | None] = mapped_column(Numeric(10, 6))
+    annual_return: Mapped[float | None] = mapped_column(Numeric(10, 6))
+    max_drawdown: Mapped[float | None] = mapped_column(Numeric(10, 6))
+    buy_hold_return: Mapped[float | None] = mapped_column(Numeric(10, 6))
+    total_trades: Mapped[int | None]
+    final_value: Mapped[int | None] = mapped_column(BigInteger)
+    params_json: Mapped[str | None] = mapped_column(Text)
+    ai_analysis: Mapped[str | None] = mapped_column(Text)
+    executed_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+    user: Mapped[User] = relationship(back_populates="backtest_results")
