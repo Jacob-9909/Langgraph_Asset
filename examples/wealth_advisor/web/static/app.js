@@ -1,7 +1,8 @@
 /* ── State ─────────────────────────────────────────── */
-let token = localStorage.getItem("wa_token");
-let userName = localStorage.getItem("wa_name");
+let token = sessionStorage.getItem("wa_token");
+let userName = sessionStorage.getItem("wa_name");
 let portfolioChart = null;
+
 
 const ASSET_TYPE_LABELS = {
   deposit: "예금", savings: "적금", stock: "주식", bond: "채권",
@@ -37,14 +38,15 @@ function showAuthTab(tab) {
   document.getElementById("register-form").classList.toggle("hidden", tab !== "register");
   const loginTab = document.getElementById("tab-login");
   const regTab = document.getElementById("tab-register");
-  loginTab.classList.toggle("border-navy-600", tab === "login");
-  loginTab.classList.toggle("text-navy-700", tab === "login");
-  loginTab.classList.toggle("border-transparent", tab !== "login");
-  loginTab.classList.toggle("text-gray-400", tab !== "login");
-  regTab.classList.toggle("border-navy-600", tab === "register");
-  regTab.classList.toggle("text-navy-700", tab === "register");
-  regTab.classList.toggle("border-transparent", tab !== "register");
-  regTab.classList.toggle("text-gray-400", tab !== "register");
+  const active = ["bg-gray-600", "text-navy-200", "shadow-sm"];
+  const inactive = ["text-gray-400"];
+  if (tab === "login") {
+    active.forEach(c => { loginTab.classList.add(c); regTab.classList.remove(c); });
+    inactive.forEach(c => { loginTab.classList.remove(c); regTab.classList.add(c); });
+  } else {
+    active.forEach(c => { regTab.classList.add(c); loginTab.classList.remove(c); });
+    inactive.forEach(c => { regTab.classList.remove(c); loginTab.classList.add(c); });
+  }
 }
 
 async function handleLogin(e) {
@@ -97,24 +99,32 @@ async function handleRegister(e) {
 function setAuth(data) {
   token = data.access_token;
   userName = data.name;
-  localStorage.setItem("wa_token", token);
-  localStorage.setItem("wa_name", userName);
+  sessionStorage.setItem("wa_token", token);
+  sessionStorage.setItem("wa_name", userName);
   routeAfterLogin();
 }
 
 function logout() {
   token = null;
   userName = null;
-  localStorage.removeItem("wa_token");
-  localStorage.removeItem("wa_name");
-  showAuth();
+  sessionStorage.removeItem("wa_token");
+  sessionStorage.removeItem("wa_name");
+  showHome();
 }
 
 /* ── Routing ───────────────────────────────────────── */
 function hideAllPages() {
+  document.getElementById("home-page").classList.add("hidden");
   document.getElementById("auth-page").classList.add("hidden");
   document.getElementById("dashboard-page").classList.add("hidden");
   document.getElementById("admin-page").classList.add("hidden");
+  document.getElementById("backtest-page").classList.add("hidden");
+}
+
+function showHome() {
+  hideAllPages();
+  document.getElementById("home-page").classList.remove("hidden");
+  initScrollAnimations();
 }
 
 function showAuth() {
@@ -129,6 +139,13 @@ function showDashboard() {
   loadDashboard();
   loadAssets();
   loadResults();
+}
+
+function showBacktest() {
+  hideAllPages();
+  document.getElementById("backtest-page").classList.remove("hidden");
+  loadStrategies();
+  loadBacktestHistory();
 }
 
 function showAdminPage() {
@@ -725,6 +742,464 @@ async function deleteUser(id, name) {
   }
 }
 
+/* ── Trading Lab / Backtest ────────────────────────── */
+let backtestChart = null;
+let currentBacktestId = null;
+
+const STRATEGY_LABELS_JS = {
+  sma_crossover: "SMA 교차", macd: "MACD", rsi: "RSI",
+  bollinger: "볼린저 밴드", obv: "OBV", combined: "복합 전략",
+};
+
+/* ── Ticker autocomplete ──────────────────────────── */
+let _tickerTimer = null;
+let _tickerIdx = -1;
+
+function onTickerInput(val) {
+  clearTimeout(_tickerTimer);
+  _tickerIdx = -1;
+  const dropdown = document.getElementById("bt-ticker-dropdown");
+  if (val.trim().length < 1) { dropdown.classList.add("hidden"); return; }
+  _tickerTimer = setTimeout(() => fetchTickerSuggestions(val.trim()), 250);
+}
+
+function onTickerKeydown(e) {
+  const dropdown = document.getElementById("bt-ticker-dropdown");
+  if (dropdown.classList.contains("hidden")) return;
+  const items = dropdown.querySelectorAll("[data-ticker]");
+  if (!items.length) return;
+
+  if (e.key === "ArrowDown") {
+    e.preventDefault();
+    _tickerIdx = Math.min(_tickerIdx + 1, items.length - 1);
+    highlightTickerItem(items);
+  } else if (e.key === "ArrowUp") {
+    e.preventDefault();
+    _tickerIdx = Math.max(_tickerIdx - 1, 0);
+    highlightTickerItem(items);
+  } else if (e.key === "Enter") {
+    e.preventDefault();
+    if (_tickerIdx >= 0 && _tickerIdx < items.length) {
+      selectTicker(items[_tickerIdx].dataset.ticker);
+    } else {
+      dropdown.classList.add("hidden");
+    }
+  } else if (e.key === "Escape") {
+    dropdown.classList.add("hidden");
+    _tickerIdx = -1;
+  }
+}
+
+function highlightTickerItem(items) {
+  items.forEach((el, i) => {
+    if (i === _tickerIdx) {
+      el.classList.add("bg-gray-700");
+      el.scrollIntoView({ block: "nearest" });
+    } else {
+      el.classList.remove("bg-gray-700");
+    }
+  });
+}
+
+async function fetchTickerSuggestions(q) {
+  const dropdown = document.getElementById("bt-ticker-dropdown");
+  try {
+    const results = await api(`/api/backtest/ticker-search?q=${encodeURIComponent(q)}`);
+    if (!results.length) { dropdown.classList.add("hidden"); return; }
+    _tickerIdx = -1;
+    dropdown.innerHTML = results.map(r =>
+      `<div data-ticker="${esc(r.symbol)}" class="px-4 py-2.5 cursor-pointer flex items-center justify-between transition" onclick="selectTicker('${esc(r.symbol)}')" onmouseenter="_tickerIdx=${results.indexOf(r)};highlightTickerItem(document.querySelectorAll('[data-ticker]'))">
+        <div>
+          <span class="font-medium text-sm text-gray-200">${esc(r.symbol)}</span>
+          <span class="text-xs text-gray-500 ml-2">${esc(r.name)}</span>
+        </div>
+        <span class="text-xs text-gray-600">${esc(r.exchange)}</span>
+      </div>`
+    ).join("");
+    dropdown.classList.remove("hidden");
+  } catch { dropdown.classList.add("hidden"); }
+}
+
+function selectTicker(symbol) {
+  document.getElementById("bt-ticker").value = symbol;
+  document.getElementById("bt-ticker-dropdown").classList.add("hidden");
+  _tickerIdx = -1;
+}
+
+document.addEventListener("click", (e) => {
+  const dropdown = document.getElementById("bt-ticker-dropdown");
+  if (dropdown && !e.target.closest("#bt-ticker") && !e.target.closest("#bt-ticker-dropdown")) {
+    dropdown.classList.add("hidden");
+    _tickerIdx = -1;
+  }
+});
+
+/* ── Capital input formatting ─────────────────────── */
+function formatCapitalInput(el) {
+  const pos = el.selectionStart;
+  const oldLen = el.value.length;
+  const raw = el.value.replace(/[^0-9]/g, "");
+  el.value = raw ? Number(raw).toLocaleString("ko-KR") : "";
+  const newLen = el.value.length;
+  el.setSelectionRange(pos + newLen - oldLen, pos + newLen - oldLen);
+}
+
+function getCapitalValue() {
+  return parseInt(document.getElementById("bt-capital").value.replace(/[^0-9]/g, ""), 10) || 100000000;
+}
+
+async function loadStrategies() {
+  try {
+    const list = await api("/api/backtest/strategies");
+    const sel = document.getElementById("bt-strategy");
+    sel.innerHTML = list.map(s => `<option value="${s.name}">${esc(s.label)} — ${esc(s.description)}</option>`).join("");
+  } catch { /* ignore */ }
+
+  // set default dates
+  const end = new Date();
+  const start = new Date();
+  start.setFullYear(start.getFullYear() - 3);
+  document.getElementById("bt-end").value = end.toISOString().slice(0, 10);
+  document.getElementById("bt-start").value = start.toISOString().slice(0, 10);
+}
+
+async function runBacktest() {
+  const body = {
+    ticker: document.getElementById("bt-ticker").value.trim(),
+    strategy: document.getElementById("bt-strategy").value,
+    start_date: document.getElementById("bt-start").value,
+    end_date: document.getElementById("bt-end").value,
+    initial_capital: getCapitalValue(),
+  };
+  if (!body.ticker) { alert("종목 티커를 입력하세요"); return; }
+
+  document.getElementById("bt-loading").classList.remove("hidden");
+  document.getElementById("bt-loading-text").textContent = "백테스트 실행 중...";
+  document.getElementById("bt-metrics").classList.add("hidden");
+  document.getElementById("bt-chart-section").classList.add("hidden");
+  document.getElementById("bt-ai-section").classList.add("hidden");
+  document.getElementById("bt-grid-result").classList.add("hidden");
+
+  try {
+    const res = await api("/api/backtest/run", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body) });
+    renderBacktestResult(res);
+    loadBacktestHistory();
+  } catch (err) {
+    alert(err.message || "백테스트 실행 실패");
+  } finally {
+    document.getElementById("bt-loading").classList.add("hidden");
+  }
+}
+
+function renderBacktestResult(res) {
+  const m = res.metrics;
+  currentBacktestId = res.backtest_id;
+
+  // metrics
+  const retColor = (v) => v >= 0 ? "text-green-400" : "text-red-400";
+  document.getElementById("bt-m-return").className = `text-xl font-bold mt-1 tabular-nums ${retColor(m.total_return)}`;
+  document.getElementById("bt-m-return").textContent = (m.total_return * 100).toFixed(2) + "%";
+  document.getElementById("bt-m-annual").className = `text-xl font-bold mt-1 tabular-nums ${retColor(m.annual_return)}`;
+  document.getElementById("bt-m-annual").textContent = (m.annual_return * 100).toFixed(2) + "%";
+  document.getElementById("bt-m-drawdown").textContent = (m.max_drawdown * 100).toFixed(2) + "%";
+  document.getElementById("bt-m-buyhold").className = `text-xl font-bold mt-1 tabular-nums ${retColor(m.buy_hold_return)}`;
+  document.getElementById("bt-m-buyhold").textContent = (m.buy_hold_return * 100).toFixed(2) + "%";
+  document.getElementById("bt-m-trades").textContent = m.total_trades + "회";
+  document.getElementById("bt-m-final").textContent = formatKRW(m.final_value);
+  document.getElementById("bt-metrics").classList.remove("hidden");
+
+  // chart
+  renderBacktestChart(res.chart_data, res.strategy);
+  document.getElementById("bt-chart-section").classList.remove("hidden");
+
+  // show AI section
+  document.getElementById("bt-ai-content").innerHTML = "";
+  document.getElementById("bt-ai-section").classList.remove("hidden");
+}
+
+function renderBacktestChart(chartData, strategy) {
+  const ctx = document.getElementById("bt-chart");
+  if (backtestChart) backtestChart.destroy();
+
+  const labels = chartData.map(d => d.date);
+  const closes = chartData.map(d => d.close);
+  const portfolio = chartData.map(d => d.portfolio_value);
+  const buyPts = chartData.filter(d => d.signal === 1).map(d => ({ x: d.date, y: d.close }));
+  const sellPts = chartData.filter(d => d.signal === -1).map(d => ({ x: d.date, y: d.close }));
+
+  backtestChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "종가",
+          data: closes,
+          borderColor: "#1e3a5f",
+          backgroundColor: "transparent",
+          borderWidth: 1.5,
+          pointRadius: 0,
+          yAxisID: "y",
+          order: 2,
+        },
+        {
+          label: "포트폴리오",
+          data: portfolio,
+          borderColor: "#6681b8",
+          backgroundColor: "transparent",
+          borderWidth: 1.5,
+          pointRadius: 0,
+          borderDash: [4, 2],
+          yAxisID: "y1",
+          order: 3,
+        },
+        {
+          label: "매수",
+          data: buyPts,
+          type: "scatter",
+          pointStyle: "triangle",
+          pointRadius: 6,
+          backgroundColor: "#16a34a",
+          borderColor: "#16a34a",
+          yAxisID: "y",
+          order: 1,
+        },
+        {
+          label: "매도",
+          data: sellPts,
+          type: "scatter",
+          pointStyle: "triangle",
+          rotation: 180,
+          pointRadius: 6,
+          backgroundColor: "#dc2626",
+          borderColor: "#dc2626",
+          yAxisID: "y",
+          order: 1,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { position: "top", labels: { font: { size: 11 }, usePointStyle: true } },
+        tooltip: { callbacks: { label: (ctx) => ctx.dataset.label + ": " + (ctx.parsed.y?.toLocaleString() ?? "") } },
+      },
+      scales: {
+        x: { display: true, ticks: { maxTicksLimit: 12, font: { size: 10 } }, grid: { display: false } },
+        y: { position: "left", ticks: { font: { size: 10 } }, grid: { color: "rgba(0,0,0,0.05)" } },
+        y1: { position: "right", ticks: { font: { size: 10 }, callback: (v) => formatKRW(v) }, grid: { drawOnChartArea: false } },
+      },
+    },
+  });
+}
+
+async function runGridSearch() {
+  const body = {
+    ticker: document.getElementById("bt-ticker").value.trim(),
+    strategy: document.getElementById("bt-strategy").value,
+    start_date: document.getElementById("bt-start").value,
+    end_date: document.getElementById("bt-end").value,
+    initial_capital: getCapitalValue(),
+  };
+  if (body.strategy === "combined") { alert("복합 전략은 그리드 서치를 지원하지 않습니다"); return; }
+
+  // show live grid UI
+  const container = document.getElementById("bt-grid-result");
+  container.classList.remove("hidden");
+  container.innerHTML = `
+    <div class="flex items-center gap-3 mb-4">
+      <div class="inline-block animate-spin rounded-full h-5 w-5 border-2 border-navy-600 border-t-transparent"></div>
+      <div>
+        <h3 class="text-sm font-semibold text-gray-200">파라미터 최적화 진행 중</h3>
+        <p id="gs-progress-text" class="text-xs text-gray-500">준비 중...</p>
+      </div>
+    </div>
+    <div class="mb-3">
+      <div class="w-full bg-gray-700 rounded-full h-1.5 overflow-hidden">
+        <div id="gs-progress-bar" class="h-full bg-navy-400 rounded-full transition-all duration-300" style="width:0%"></div>
+      </div>
+    </div>
+    <div id="gs-best-card" class="hidden mb-4 bg-green-900/20 border border-green-700/50 rounded-lg px-4 py-3">
+      <p class="text-xs text-green-400 uppercase tracking-wider font-medium mb-1">현재 최적</p>
+      <p id="gs-best-params" class="text-sm font-mono text-gray-200"></p>
+      <p id="gs-best-return" class="text-lg font-bold tabular-nums mt-0.5"></p>
+    </div>
+    <div class="max-h-48 overflow-y-auto" id="gs-log-container">
+      <table class="w-full text-xs">
+        <thead class="sticky top-0 bg-gray-800"><tr class="border-b border-gray-700">
+          <th class="text-left px-2 py-1.5 text-gray-500">#</th>
+          <th class="text-left px-2 py-1.5 text-gray-500">파라미터</th>
+          <th class="text-right px-2 py-1.5 text-gray-500">수익률</th>
+        </tr></thead>
+        <tbody id="gs-log-tbody"></tbody>
+      </table>
+    </div>
+  `;
+
+  const tbody = document.getElementById("gs-log-tbody");
+  const progressBar = document.getElementById("gs-progress-bar");
+  const progressText = document.getElementById("gs-progress-text");
+  const bestCard = document.getElementById("gs-best-card");
+  const bestParamsEl = document.getElementById("gs-best-params");
+  const bestReturnEl = document.getElementById("gs-best-return");
+
+  try {
+    const resp = await fetch("/api/backtest/grid-search-stream", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+      body: JSON.stringify(body),
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.detail || "그리드 서치 실패");
+    }
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
+
+      for (const line of lines) {
+        if (line.startsWith("event: done")) break;
+        if (!line.startsWith("data: ")) continue;
+        const data = JSON.parse(line.slice(6));
+
+        // progress
+        const pct = Math.round((data.index / data.total) * 100);
+        progressBar.style.width = pct + "%";
+        progressText.textContent = `${data.index} / ${data.total} 조합 테스트 (${pct}%)`;
+
+        // log row
+        const paramStr = Object.entries(data.params).map(([k,v]) => `${k}=${v}`).join(", ");
+        const retPct = (data.total_return * 100).toFixed(2);
+        const retClass = data.total_return >= 0 ? "text-green-400" : "text-red-400";
+        const bestMark = data.is_best ? ' <span class="text-yellow-400 ml-1">★</span>' : "";
+        const tr = document.createElement("tr");
+        tr.className = `border-b border-gray-800 ${data.is_best ? "bg-green-900/10" : ""}`;
+        tr.innerHTML = `
+          <td class="px-2 py-1.5 text-gray-600">${data.index}</td>
+          <td class="px-2 py-1.5 font-mono text-gray-400">${esc(paramStr)}${bestMark}</td>
+          <td class="px-2 py-1.5 text-right tabular-nums ${retClass}">${retPct}%</td>
+        `;
+        tbody.appendChild(tr);
+
+        // auto-scroll
+        const logContainer = document.getElementById("gs-log-container");
+        logContainer.scrollTop = logContainer.scrollHeight;
+
+        // best card
+        if (data.is_best) {
+          bestCard.classList.remove("hidden");
+          bestParamsEl.textContent = Object.entries(data.current_best_params).map(([k,v]) => `${k}=${v}`).join("  ·  ");
+          const bestRetPct = (data.current_best_return * 100).toFixed(2);
+          bestReturnEl.className = `text-lg font-bold tabular-nums mt-0.5 ${data.current_best_return >= 0 ? "text-green-400" : "text-red-400"}`;
+          bestReturnEl.textContent = bestRetPct + "%";
+        }
+      }
+    }
+
+    // finished — update header
+    progressBar.style.width = "100%";
+    progressBar.classList.remove("bg-navy-400");
+    progressBar.classList.add("bg-green-500");
+    container.querySelector("h3").textContent = "파라미터 최적화 완료";
+    container.querySelector(".animate-spin")?.remove();
+    progressText.textContent = `${tbody.children.length}개 조합 테스트 완료`;
+
+  } catch (err) {
+    container.innerHTML = `<p class="text-red-400 text-sm">${esc(err.message || "그리드 서치 실패")}</p>`;
+  }
+}
+
+async function requestAiAnalysis() {
+  if (!currentBacktestId) { alert("먼저 백테스트를 실행하세요"); return; }
+
+  document.getElementById("bt-ai-loading").classList.remove("hidden");
+  document.getElementById("bt-ai-btn").disabled = true;
+
+  try {
+    const res = await api("/api/backtest/ai-analysis", {
+      method: "POST", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ backtest_id: currentBacktestId }),
+    });
+    document.getElementById("bt-ai-content").innerHTML = marked.parse(res.analysis || "");
+  } catch (err) {
+    document.getElementById("bt-ai-content").innerHTML = `<p class="text-red-500 text-sm">${esc(err.message || "AI 분석 실패")}</p>`;
+  } finally {
+    document.getElementById("bt-ai-loading").classList.add("hidden");
+    document.getElementById("bt-ai-btn").disabled = false;
+  }
+}
+
+async function loadBacktestHistory() {
+  try {
+    const list = await api("/api/backtest/history");
+    const tbody = document.getElementById("bt-history-tbody");
+    if (!list.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="px-3 py-6 text-center text-gray-600 text-sm">아직 백테스트 기록이 없습니다</td></tr>';
+      return;
+    }
+    tbody.innerHTML = list.map(r => {
+      const ret = r.total_return != null ? (r.total_return * 100).toFixed(2) + "%" : "-";
+      const retClass = (r.total_return || 0) >= 0 ? "text-green-400" : "text-red-400";
+      const date = new Date(r.executed_at).toLocaleString("ko-KR", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+      return `<tr>
+        <td class="px-3 py-2 text-xs text-gray-500">${esc(date)}</td>
+        <td class="px-3 py-2 font-medium">${esc(r.ticker)}</td>
+        <td class="px-3 py-2">${esc(STRATEGY_LABELS_JS[r.strategy] || r.strategy)}</td>
+        <td class="px-3 py-2 text-right tabular-nums ${retClass}">${ret}</td>
+        <td class="px-3 py-2 text-right tabular-nums">${r.final_value ? formatKRW(r.final_value) : "-"}</td>
+        <td class="px-3 py-2 text-center">
+          ${r.ai_analysis ? '<span class="text-xs text-green-600">AI 완료</span>' : ''}
+          <button onclick="deleteBacktest(${r.id})" class="text-xs text-red-400 hover:text-red-600 ml-2">삭제</button>
+        </td>
+      </tr>`;
+    }).join("");
+  } catch { /* ignore */ }
+}
+
+async function deleteBacktest(id) {
+  if (!confirm("이 백테스트 기록을 삭제하시겠습니까?")) return;
+  try {
+    await api(`/api/backtest/history/${id}`, { method: "DELETE" });
+    loadBacktestHistory();
+  } catch (err) { alert(err.message); }
+}
+
+/* ── Scroll Animations ─────────────────────────────── */
+function initScrollAnimations() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add("is-visible"); });
+  }, { threshold: 0.15 });
+  document.querySelectorAll(".animate-fadein-scroll").forEach(el => {
+    el.classList.remove("is-visible");
+    observer.observe(el);
+  });
+}
+
+/* ── Refresh ───────────────────────────────────────── */
+function refreshAdmin() {
+  loadAdminStats();
+  loadAdminUsers();
+  loadPendingUsers();
+}
+
+function refreshDashboard() {
+  loadDashboard();
+  loadAssets();
+  loadResults();
+}
+
 /* ── Init ──────────────────────────────────────────── */
 document.getElementById("af-qty")?.addEventListener("input", autoCalcAmount);
 document.getElementById("af-cur-price")?.addEventListener("input", autoCalcAmount);
@@ -732,5 +1207,5 @@ document.getElementById("af-cur-price")?.addEventListener("input", autoCalcAmoun
 if (token) {
   routeAfterLogin();
 } else {
-  showAuth();
+  showHome();
 }

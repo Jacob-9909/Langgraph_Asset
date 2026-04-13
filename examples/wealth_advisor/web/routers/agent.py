@@ -13,9 +13,9 @@ from sqlalchemy.orm import Session
 
 from langgraph_bootstrap import flush_langfuse_traces, merge_run_config
 
-from ...config import USE_MEMORY_CHECKPOINTER
-from ...graph import build_graph
-from ...state import AssetAdvisoryState
+from ...advisor.config import USE_MEMORY_CHECKPOINTER
+from ...advisor.graph import build_graph
+from ...advisor.state import AssetAdvisoryState
 from ..auth import get_current_user
 from ..database import get_db
 from ..models import AgentResult, User, UserAsset

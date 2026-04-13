@@ -125,3 +125,90 @@ class DashboardSummary(BaseModel):
     profile: ProfileResponse | None
     recent_recommendation: AgentResultResponse | None
     is_admin: bool = False
+
+
+# ── Backtest ─────────────────────────────────────────
+
+ALLOWED_STRATEGIES = ["sma_crossover", "macd", "rsi", "bollinger", "obv", "combined"]
+
+
+class BacktestRequest(BaseModel):
+    ticker: str
+    strategy: str
+    start_date: str
+    end_date: str
+    initial_capital: int = 100_000_000
+
+    @field_validator("ticker")
+    @classmethod
+    def ticker_upper(cls, v: str) -> str:
+        return v.strip().upper()
+
+    @field_validator("strategy")
+    @classmethod
+    def strategy_valid(cls, v: str) -> str:
+        if v not in ALLOWED_STRATEGIES:
+            raise ValueError(f"지원하지 않는 전략: {v}")
+        return v
+
+
+class BacktestMetrics(BaseModel):
+    total_return: float
+    buy_hold_return: float
+    annual_return: float
+    max_drawdown: float
+    total_trades: int
+    final_value: int
+
+
+class BacktestResponse(BaseModel):
+    metrics: BacktestMetrics
+    chart_data: list[dict]
+    strategy: str
+    ticker: str
+    backtest_id: int | None = None
+
+
+class GridSearchRequest(BaseModel):
+    ticker: str
+    strategy: str
+    start_date: str
+    end_date: str
+    initial_capital: int = 100_000_000
+
+    @field_validator("ticker")
+    @classmethod
+    def ticker_upper(cls, v: str) -> str:
+        return v.strip().upper()
+
+
+class GridSearchResponse(BaseModel):
+    best_params: dict
+    best_return: float
+    results_count: int
+
+
+class StrategyInfo(BaseModel):
+    name: str
+    label: str
+    description: str
+    default_params: dict
+
+
+class BacktestResultResponse(BaseModel):
+    id: int
+    ticker: str
+    strategy: str
+    start_date: str
+    end_date: str
+    initial_capital: int
+    total_return: float | None
+    annual_return: float | None
+    max_drawdown: float | None
+    buy_hold_return: float | None
+    total_trades: int | None
+    final_value: int | None
+    ai_analysis: str | None
+    executed_at: datetime
+
+    model_config = {"from_attributes": True}

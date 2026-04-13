@@ -13,7 +13,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from .database import Base, engine
-from .routers import admin, agent, assets, auth, dashboard, profile
+from .routers import admin, agent, assets, auth, backtest, dashboard, profile
 
 _HERE = Path(__file__).parent
 
@@ -33,6 +33,7 @@ app.include_router(profile.router)
 app.include_router(assets.router)
 app.include_router(agent.router)
 app.include_router(dashboard.router)
+app.include_router(backtest.router)
 
 # ── Static & Templates ─────────────────────────────────
 app.mount("/static", StaticFiles(directory=str(_HERE / "static")), name="static")
@@ -43,6 +44,7 @@ templates = Jinja2Templates(directory=str(_HERE / "templates"))
 @app.get("/login", response_class=HTMLResponse)
 @app.get("/register", response_class=HTMLResponse)
 @app.get("/dashboard", response_class=HTMLResponse)
+@app.get("/backtest", response_class=HTMLResponse)
 def spa(request: Request):
     """Serve the single-page app shell for all frontend routes."""
     return templates.TemplateResponse(name="index.html", request=request)
