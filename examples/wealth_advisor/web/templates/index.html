@@ -54,11 +54,12 @@
           class="w-full px-3 py-2.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-navy-400 focus:border-navy-400 focus:outline-none" />
         <input type="email" id="reg-email" placeholder="이메일" required
           class="w-full px-3 py-2.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-navy-400 focus:border-navy-400 focus:outline-none" />
-        <input type="password" id="reg-password" placeholder="비밀번호 (6자 이상)" required minlength="6"
+        <input type="password" id="reg-password" placeholder="비밀번호 (8자 이상)" required minlength="8"
           class="w-full px-3 py-2.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-navy-400 focus:border-navy-400 focus:outline-none" />
         <button type="submit"
-          class="w-full bg-navy-700 text-white py-2.5 rounded text-sm font-medium hover:bg-navy-800 transition">가입</button>
+          class="w-full bg-navy-700 text-white py-2.5 rounded text-sm font-medium hover:bg-navy-800 transition">가입 신청</button>
         <p id="reg-error" class="text-red-600 text-xs text-center hidden"></p>
+        <p id="reg-success" class="text-green-700 text-xs text-center hidden"></p>
       </form>
     </div>
   </div>
@@ -76,6 +77,17 @@
     </nav>
 
     <main class="max-w-7xl mx-auto px-4 py-5 space-y-5">
+
+      <!-- Admin: Pending Approvals -->
+      <div id="admin-panel" class="hidden bg-amber-50 border border-amber-200 rounded-lg p-5">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-sm font-semibold text-amber-800">가입 승인 대기</h2>
+          <button onclick="loadPendingUsers()" class="text-xs text-amber-600 hover:underline">새로고침</button>
+        </div>
+        <div id="pending-list" class="space-y-2 text-sm">
+          <p class="text-amber-400">대기 중인 사용자가 없습니다</p>
+        </div>
+      </div>
 
       <!-- Summary -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">

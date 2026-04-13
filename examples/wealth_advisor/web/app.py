@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from .database import Base, engine
-from .routers import agent, assets, auth, dashboard, profile
+from .routers import admin, agent, assets, auth, dashboard, profile
 
 _HERE = Path(__file__).parent
 
@@ -21,6 +21,7 @@ Base.metadata.create_all(bind=engine)
 
 # ── Routers ────────────────────────────────────────────
 app.include_router(auth.router)
+app.include_router(admin.router)
 app.include_router(profile.router)
 app.include_router(assets.router)
 app.include_router(agent.router)

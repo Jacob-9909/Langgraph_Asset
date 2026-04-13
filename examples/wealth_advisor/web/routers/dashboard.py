@@ -47,4 +47,5 @@ def get_dashboard(
         assets=[AssetResponse.model_validate(a) for a in assets],
         profile=profile_resp,
         recent_recommendation=recent,
+        is_admin=user.is_admin,
     )

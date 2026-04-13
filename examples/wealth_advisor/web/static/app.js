@@ -69,7 +69,9 @@ async function handleLogin(e) {
 async function handleRegister(e) {
   e.preventDefault();
   const errEl = document.getElementById("reg-error");
+  const okEl = document.getElementById("reg-success");
   errEl.classList.add("hidden");
+  okEl.classList.add("hidden");
   try {
     const data = await api("/api/auth/register", {
       method: "POST",
@@ -79,7 +81,13 @@ async function handleRegister(e) {
         password: document.getElementById("reg-password").value,
       }),
     });
-    setAuth(data);
+    if (data.status === "pending") {
+      okEl.textContent = data.message;
+      okEl.classList.remove("hidden");
+      document.getElementById("register-form").reset();
+    } else {
+      setAuth(data);
+    }
   } catch (err) {
     errEl.textContent = err.message;
     errEl.classList.remove("hidden");
@@ -131,6 +139,14 @@ async function loadDashboard() {
 
     renderProfile(d.profile);
     renderChart(d.assets_by_type);
+
+    // Admin panel
+    if (d.is_admin) {
+      document.getElementById("admin-panel").classList.remove("hidden");
+      loadPendingUsers();
+    } else {
+      document.getElementById("admin-panel").classList.add("hidden");
+    }
 
     if (d.recent_recommendation) {
       document.getElementById("agent-result").classList.remove("hidden");
@@ -590,6 +606,52 @@ function esc(s) {
 
 function closeModal(id) {
   document.getElementById(id).classList.add("hidden");
+}
+
+/* ── Admin ─────────────────────────────────────────── */
+async function loadPendingUsers() {
+  try {
+    const users = await api("/api/admin/pending");
+    const el = document.getElementById("pending-list");
+    if (!users.length) {
+      el.innerHTML = '<p class="text-amber-400 text-xs">대기 중인 사용자가 없습니다</p>';
+      return;
+    }
+    el.innerHTML = users.map(u => `
+      <div class="flex items-center justify-between bg-white rounded border border-amber-100 px-3 py-2">
+        <div>
+          <span class="font-medium text-gray-800">${esc(u.name)}</span>
+          <span class="text-gray-400 ml-2">${esc(u.email)}</span>
+          <span class="text-gray-300 ml-2 text-xs">${new Date(u.created_at).toLocaleDateString("ko-KR")}</span>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="approveUser(${u.id})" class="text-xs bg-green-600 text-white px-2.5 py-1 rounded hover:bg-green-700">승인</button>
+          <button onclick="rejectUser(${u.id})" class="text-xs border border-gray-300 text-gray-500 px-2.5 py-1 rounded hover:bg-red-50 hover:text-red-600">거부</button>
+        </div>
+      </div>
+    `).join("");
+  } catch {}
+}
+
+async function approveUser(id) {
+  try {
+    const r = await api(`/api/admin/approve/${id}`, { method: "POST" });
+    alert(r.message);
+    loadPendingUsers();
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+async function rejectUser(id) {
+  if (!confirm("이 사용자의 가입을 거부하시겠습니까? 계정이 삭제됩니다.")) return;
+  try {
+    const r = await api(`/api/admin/reject/${id}`, { method: "DELETE" });
+    alert(r.message);
+    loadPendingUsers();
+  } catch (err) {
+    alert(err.message);
+  }
 }
 
 /* ── Init ──────────────────────────────────────────── */

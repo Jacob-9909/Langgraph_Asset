@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 
 
 # ── Auth ──────────────────────────────────────────────
@@ -13,6 +13,13 @@ class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
     name: str
+
+    @field_validator("password")
+    @classmethod
+    def password_min_length(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("비밀번호는 8자 이상이어야 합니다")
+        return v
 
 
 class LoginRequest(BaseModel):
@@ -25,6 +32,15 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
     user_id: int
     name: str
+
+
+class PendingUserResponse(BaseModel):
+    id: int
+    email: str
+    name: str
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
 
 
 # ── Profile ───────────────────────────────────────────
@@ -90,3 +106,4 @@ class DashboardSummary(BaseModel):
     assets: list[AssetResponse] = []
     profile: ProfileResponse | None
     recent_recommendation: AgentResultResponse | None
+    is_admin: bool = False
