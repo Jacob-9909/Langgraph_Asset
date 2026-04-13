@@ -14,9 +14,9 @@ from ..schemas import AdminStatsResponse, AdminUserResponse, PendingUserResponse
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
 
-@router.get("/stats", response_model=AdminStatsResponse)
+@router.get("/stats", response_model=AdminStatsResponse) # 전체 통계(유저 수, 자산 합계)
 def get_stats(
-    _admin: User = Depends(get_current_admin),
+    _admin: User = Depends(get_current_admin), # 값은 안쓰고 인증만 목적
     db: Session = Depends(get_db),
 ):
     total = db.scalar(select(func.count(User.id))) or 0
@@ -31,7 +31,7 @@ def get_stats(
     )
 
 
-@router.get("/users", response_model=list[AdminUserResponse])
+@router.get("/users", response_model=list[AdminUserResponse]) # 전체 유저 목록
 def list_all_users(
     _admin: User = Depends(get_current_admin),
     db: Session = Depends(get_db),
@@ -54,7 +54,7 @@ def list_all_users(
     return result
 
 
-@router.get("/pending", response_model=list[PendingUserResponse])
+@router.get("/pending", response_model=list[PendingUserResponse]) # 승인 대기 유저
 def list_pending_users(
     _admin: User = Depends(get_current_admin),
     db: Session = Depends(get_db),
@@ -65,7 +65,7 @@ def list_pending_users(
     return [PendingUserResponse.model_validate(u) for u in users]
 
 
-@router.post("/approve/{user_id}", status_code=200)
+@router.post("/approve/{user_id}", status_code=200) # 유저 승인
 def approve_user(
     user_id: int,
     _admin: User = Depends(get_current_admin),
@@ -81,7 +81,7 @@ def approve_user(
     return {"message": f"{user.name} ({user.email}) 승인 완료"}
 
 
-@router.delete("/reject/{user_id}", status_code=200)
+@router.delete("/reject/{user_id}", status_code=200) # 유저 삭제
 def reject_user(
     user_id: int,
     _admin: User = Depends(get_current_admin),

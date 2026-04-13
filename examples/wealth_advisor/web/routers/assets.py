@@ -13,7 +13,7 @@ from ..schemas import AssetCreate, AssetResponse
 router = APIRouter(prefix="/api/assets", tags=["assets"])
 
 
-@router.get("", response_model=list[AssetResponse])
+@router.get("", response_model=list[AssetResponse]) # 유저 자산 목록
 def list_assets(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -21,7 +21,7 @@ def list_assets(
     return [AssetResponse.model_validate(a) for a in user.assets]
 
 
-@router.post("", response_model=AssetResponse, status_code=201)
+@router.post("", response_model=AssetResponse, status_code=201) # 유저 자산 생성
 def create_asset(
     body: AssetCreate,
     user: User = Depends(get_current_user),
@@ -34,7 +34,7 @@ def create_asset(
     return AssetResponse.model_validate(asset)
 
 
-@router.put("/{asset_id}", response_model=AssetResponse)
+@router.put("/{asset_id}", response_model=AssetResponse) # 유저 자산 수정
 def update_asset(
     asset_id: int,
     body: AssetCreate,
@@ -51,7 +51,7 @@ def update_asset(
     return AssetResponse.model_validate(asset)
 
 
-@router.delete("/{asset_id}", status_code=204)
+@router.delete("/{asset_id}", status_code=204) # 유저 자산 삭제
 def delete_asset(
     asset_id: int,
     user: User = Depends(get_current_user),

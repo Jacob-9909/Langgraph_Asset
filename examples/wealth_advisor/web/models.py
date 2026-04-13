@@ -14,7 +14,7 @@ from sqlalchemy import (
     Text,
     func,
 )
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship # sqlalchemy 2.0 부터 도입된 Mapped, mapped_column
 
 from .database import Base
 
@@ -22,23 +22,24 @@ from .database import Base
 class User(Base):
     __tablename__ = "wa_users"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True) # DB 컬럼의 실제 옵션
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
-    is_approved: Mapped[bool] = mapped_column(Boolean, server_default="false")
+    is_approved: Mapped[bool] = mapped_column(Boolean, server_default="false") # 기본값 db가 처리
     is_admin: Mapped[bool] = mapped_column(Boolean, server_default="false")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
 
+    # relationship: 연관관계 설정 
     profile: Mapped[UserProfile | None] = relationship(
         back_populates="user", uselist=False, cascade="all, delete-orphan"
     )
     assets: Mapped[list[UserAsset]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
-    agent_results: Mapped[list[AgentResult]] = relationship(
+    agent_results: Mapped[list[AgentResult]] = relationship( # 1 : N
         back_populates="user", cascade="all, delete-orphan", order_by="AgentResult.executed_at.desc()"
     )
 

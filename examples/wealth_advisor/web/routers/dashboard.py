@@ -20,7 +20,7 @@ from ..schemas import (
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
 
 
-@router.get("", response_model=DashboardSummary)
+@router.get("", response_model=DashboardSummary) # 대시보드 요약
 def get_dashboard(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
