@@ -1,3 +1,3 @@
-from . import admin, agent, assets, auth, dashboard, profile
+from . import admin, agent, assets, auth, cheongyak, dashboard, profile
 
-__all__ = ["admin", "auth", "profile", "assets", "agent", "dashboard"]
+__all__ = ["admin", "auth", "profile", "assets", "agent", "cheongyak", "dashboard"]
