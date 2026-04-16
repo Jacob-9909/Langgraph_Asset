@@ -119,6 +119,7 @@ function hideAllPages() {
   document.getElementById("dashboard-page").classList.add("hidden");
   document.getElementById("admin-page").classList.add("hidden");
   document.getElementById("backtest-page").classList.add("hidden");
+  document.getElementById("cheongyak-page").classList.add("hidden");
 }
 
 function showHome() {
@@ -1208,4 +1209,384 @@ if (token) {
   routeAfterLogin();
 } else {
   showHome();
+}
+
+/* ── 청약 정보 (서울 전용) ─────────────────────────── */
+let _cyData = { all: null, apt: null, officetel: null, remaining: null, publicrent: null, opt: null };
+let _cyTab = "apt";
+let _cyMap = null;
+let _cySeoulLayer = null;
+let _cyGeoCache = {};
+let _cySelectedGu = null;
+let _cyMarkerLayer = null;
+
+const _cyTypeColors = {
+  apt:        { border: "border-l-sky-500",    bg: "bg-sky-900/30",    text: "text-sky-400",    dot: "#38bdf8",  label: "APT" },
+  officetel:  { border: "border-l-violet-500", bg: "bg-violet-900/30", text: "text-violet-400", dot: "#a78bfa",  label: "오피스텔" },
+  remaining:  { border: "border-l-orange-500", bg: "bg-orange-900/30", text: "text-orange-400", dot: "#fb923c",  label: "무순위" },
+  publicrent: { border: "border-l-lime-500",   bg: "bg-lime-900/30",   text: "text-lime-400",   dot: "#a3e635",  label: "공공임대" },
+  opt:        { border: "border-l-rose-500",   bg: "bg-rose-900/30",   text: "text-rose-400",   dot: "#fb7185",  label: "임의공급" },
+  all:        { border: "border-l-gray-500",   bg: "bg-gray-900/30",   text: "text-gray-300",   dot: "#9ca3af",  label: "전체" },
+};
+
+function _cyExtractGu(item) {
+  const m = (item.address || "").match(/서울특별시\s+(\S+구)/);
+  return m ? m[1] : null;
+}
+
+function _cyFilterSeoul(data) {
+  return (data || []).filter(d => d.region === "서울");
+}
+
+function _cyCountByGu(data) {
+  const counts = {};
+  for (const d of _cyFilterSeoul(data)) {
+    const gu = _cyExtractGu(d) || "기타";
+    counts[gu] = (counts[gu] || 0) + 1;
+  }
+  return counts;
+}
+
+let _cyDominantTypeByGu = {};
+function _cyCalcDominantTypes(data) {
+  _cyDominantTypeByGu = {};
+  const guTypes = {};
+  for (const d of _cyFilterSeoul(data)) {
+    const gu = _cyExtractGu(d) || "기타";
+    const t = d._type || "apt";
+    if (!guTypes[gu]) guTypes[gu] = {};
+    guTypes[gu][t] = (guTypes[gu][t] || 0) + 1;
+  }
+  for (const [gu, types] of Object.entries(guTypes)) {
+    _cyDominantTypeByGu[gu] = Object.entries(types).sort((a, b) => b[1] - a[1])[0][0];
+  }
+}
+
+const _cyPalettes = {
+  apt:        ["#0c4a6e","#0369a1","#0ea5e9","#38bdf8","#7dd3fc"],
+  officetel:  ["#4c1d95","#6d28d9","#8b5cf6","#a78bfa","#c4b5fd"],
+  remaining:  ["#7c2d12","#c2410c","#ea580c","#fb923c","#fdba74"],
+  publicrent: ["#365314","#4d7c0f","#65a30d","#a3e635","#d9f99d"],
+  opt:        ["#881337","#be123c","#f43f5e","#fb7185","#fda4af"],
+};
+
+function _cyChoroplethColor(count, gu) {
+  let tabKey = _cyTab;
+  if (_cyTab === "all" && gu && _cyDominantTypeByGu[gu]) {
+    tabKey = _cyDominantTypeByGu[gu];
+  }
+  const p = _cyPalettes[tabKey] || _cyPalettes.apt;
+  if (count >= 5) return p[0];
+  if (count >= 3) return p[1];
+  if (count >= 2) return p[2];
+  if (count >= 1) return p[3];
+  return "#1f2937";
+}
+
+async function _cyLoadGeo(url, key) {
+  if (_cyGeoCache[key]) return _cyGeoCache[key];
+  const resp = await fetch(url);
+  const topo = await resp.json();
+  const objKey = Object.keys(topo.objects)[0];
+  const geo = topojson.feature(topo, topo.objects[objKey]);
+  _cyGeoCache[key] = geo;
+  return geo;
+}
+
+function _cyInitMap() {
+  if (_cyMap) return;
+  const el = document.getElementById("cy-map");
+  if (!el) return;
+  const seoulBounds = [[37.413, 126.764], [37.716, 127.184]];
+  _cyMap = L.map("cy-map", {
+    center: [37.5665, 126.978],
+    zoom: 11,
+    zoomControl: true,
+    attributionControl: false,
+    minZoom: 10,
+    maxZoom: 14,
+    maxBounds: seoulBounds,
+    maxBoundsViscosity: 1.0,
+  });
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+    subdomains: "abcd",
+  }).addTo(_cyMap);
+}
+
+async function _cyRenderSeoulMap(data) {
+  _cyInitMap();
+  const counts = _cyCountByGu(data);
+  try {
+    const geo = await _cyLoadGeo(
+      "https://raw.githubusercontent.com/southkorea/seoul-maps/master/kostat/2013/json/seoul_municipalities_topo_simple.json",
+      "seoul"
+    );
+    if (_cySeoulLayer) _cyMap.removeLayer(_cySeoulLayer);
+    _cySeoulLayer = L.geoJSON(geo, {
+      style: (feature) => {
+        const gu = feature.properties.name;
+        const count = counts[gu] || 0;
+        const isSelected = _cySelectedGu === gu;
+        return {
+          fillColor: _cyChoroplethColor(count, gu),
+          fillOpacity: count > 0 ? (isSelected ? 0.8 : 0.5) : 0.1,
+          color: isSelected ? (_cyTypeColors[_cyTab === "all" ? (_cyDominantTypeByGu[gu] || "apt") : _cyTab] || _cyTypeColors.apt).dot : "#4b5563",
+          weight: isSelected ? 3 : 1,
+        };
+      },
+      onEachFeature: (feature, layer) => {
+        const gu = feature.properties.name;
+        const count = counts[gu] || 0;
+        layer.bindTooltip(`<strong>${gu}</strong> ${count}건`, { sticky: true, className: "cy-tooltip" });
+        layer.on("click", () => _cySelectGu(gu, data));
+      },
+    }).addTo(_cyMap);
+    _cyMap.fitBounds(_cySeoulLayer.getBounds(), { padding: [10, 10] });
+    _cyRenderActiveMarkers(data, geo);
+  } catch (err) { console.error("Seoul GeoJSON load failed:", err); }
+}
+
+function _cyRenderActiveMarkers(data, geo) {
+  if (_cyMarkerLayer) _cyMap.removeLayer(_cyMarkerLayer);
+  _cyMarkerLayer = L.layerGroup().addTo(_cyMap);
+  const seoulActive = _cyFilterSeoul(data).filter(d => d.status === "접수중");
+  const guCentroids = {};
+  geo.features.forEach(f => {
+    const name = f.properties.name;
+    const bounds = L.geoJSON(f).getBounds();
+    guCentroids[name] = bounds.getCenter();
+  });
+  const activeByGu = {};
+  for (const d of seoulActive) {
+    const gu = _cyExtractGu(d) || "기타";
+    activeByGu[gu] = (activeByGu[gu] || 0) + 1;
+  }
+  for (const [gu, count] of Object.entries(activeByGu)) {
+    const center = guCentroids[gu];
+    if (!center) continue;
+    const r = Math.max(8, Math.min(18, 6 + count * 4));
+    L.circleMarker(center, {
+      radius: r,
+      fillColor: "#10b981",
+      fillOpacity: 0.9,
+      color: "#ffffff",
+      weight: 2,
+      className: "cy-active-pulse",
+    }).bindTooltip(`<strong>${gu}</strong> 접수중 ${count}건`, { className: "cy-tooltip" })
+      .on("click", () => _cySelectGu(gu, data))
+      .addTo(_cyMarkerLayer);
+  }
+}
+
+function _cySelectGu(gu, data) {
+  _cySelectedGu = (_cySelectedGu === gu) ? null : gu;
+  if (_cySeoulLayer) {
+    const counts = _cyCountByGu(data);
+    _cySeoulLayer.eachLayer(layer => {
+      const name = layer.feature.properties.name;
+      const count = counts[name] || 0;
+      const isSel = _cySelectedGu === name;
+      layer.setStyle({ fillColor: _cyChoroplethColor(count, name), fillOpacity: count > 0 ? (isSel ? 0.8 : 0.5) : 0.1, color: isSel ? (_cyTypeColors[_cyTab === "all" ? (_cyDominantTypeByGu[name] || "apt") : _cyTab] || _cyTypeColors.apt).dot : "#4b5563", weight: isSel ? 3 : 1 });
+      if (isSel) layer.bringToFront();
+    });
+  }
+  const seoulData = _cyFilterSeoul(data);
+  const filtered = _cySelectedGu ? seoulData.filter(d => _cyExtractGu(d) === _cySelectedGu) : seoulData;
+  _cyRenderGroupedList(filtered, data);
+  _cyUpdateSummary(filtered);
+}
+
+function cyMapReset() {
+  const data = _cyData[_cyTab];
+  _cySelectedGu = null;
+  if (data) { _cyRenderGroupedList(_cyFilterSeoul(data), data); _cyUpdateSummary(_cyFilterSeoul(data)); _cyRenderSeoulMap(data); _cyRenderGuBars(data); }
+}
+
+function _cyUpdateSummary(list) {
+  document.getElementById("cy-stat-active").textContent = list.filter(d => d.status === "접수중").length;
+  document.getElementById("cy-stat-upcoming").textContent = list.filter(d => d.status === "접수예정").length;
+  document.getElementById("cy-stat-closed").textContent = list.filter(d => d.status === "마감").length;
+  document.getElementById("cy-stat-total").textContent = list.reduce((s, d) => s + (d.total_supply || 0), 0).toLocaleString("ko-KR") + "세대";
+}
+
+function _cyRenderGuBars(data) {
+  const counts = _cyCountByGu(data);
+  const el = document.getElementById("cy-gu-bars");
+  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  const max = sorted.length ? sorted[0][1] : 1;
+  if (!sorted.length) { el.innerHTML = '<p class="text-xs text-gray-600 text-center py-2">서울 지역 데이터 없음</p>'; return; }
+  el.innerHTML = sorted.map(([gu, count]) => {
+    const tc = _cyTab === "all" ? (_cyTypeColors[_cyDominantTypeByGu[gu] || "apt"] || _cyTypeColors.apt) : (_cyTypeColors[_cyTab] || _cyTypeColors.apt);
+    const pct = Math.round((count / max) * 100);
+    const isSel = _cySelectedGu === gu;
+    return `<div class="flex items-center gap-2 cursor-pointer hover:bg-gray-700/30 rounded px-1 py-0.5 transition ${isSel ? "bg-gray-700/50" : ""}" onclick="_cySelectGu('${esc(gu)}', _cyData['${_cyTab}'])">
+      <span class="text-xs text-gray-400 w-14 flex-shrink-0 truncate ${isSel ? tc.text + " font-medium" : ""}">${esc(gu)}</span>
+      <div class="flex-1 bg-gray-800 rounded-full h-2.5 overflow-hidden"><div class="h-full rounded-full transition-all" style="width:${pct}%;background:${_cyChoroplethColor(count, gu)}"></div></div>
+      <span class="text-xs tabular-nums w-6 text-right ${isSel ? tc.text + " font-bold" : "text-gray-500"}">${count}</span>
+    </div>`;
+  }).join("");
+}
+
+function cyStatusBadge(status) {
+  if (status === "접수중") return `<span class="px-2 py-0.5 text-xs rounded border bg-emerald-600 text-white border-emerald-500 font-bold shadow-sm shadow-emerald-500/30 animate-pulse-slow">${esc(status)}</span>`;
+  const map = { "접수예정": "bg-amber-900/50 text-amber-400 border-amber-700", "마감": "bg-gray-800 text-gray-500 border-gray-700", "일정미정": "bg-gray-800 text-gray-500 border-gray-700" };
+  return `<span class="px-2 py-0.5 text-xs rounded border ${map[status] || map["일정미정"]}">${esc(status)}</span>`;
+}
+
+function _cyRenderCard(d, globalIdx) {
+  const itemType = (_cyTab === "all" && d._type) ? d._type : _cyTab;
+  const tc = _cyTypeColors[itemType] || _cyTypeColors.apt;
+  const isActive = d.status === "접수중";
+  const activeClass = isActive ? "cy-card-active ring-1 ring-emerald-500/40" : "";
+  const typeLabel = _cyTab === "all" ? `<span class="text-[10px] ${tc.text} opacity-70">${tc.label}</span>` : "";
+  return `<div class="cy-card wa-card cursor-pointer hover:border-gray-600 transition border-l-[3px] ${tc.border} !p-3 ${activeClass}" onclick="openCyDetail(${globalIdx})">
+    <div class="flex items-center gap-1.5 mb-1">${cyStatusBadge(d.status)}${typeLabel}<span class="text-xs ${tc.text} font-medium">${d.total_supply}세대</span></div>
+    <h4 class="text-sm font-semibold text-gray-200 leading-snug line-clamp-1">${esc(d.house_nm)}</h4>
+    <p class="text-xs text-gray-500 truncate mt-0.5">${esc(d.address || "")}</p>
+  </div>`;
+}
+
+function _cyRenderGroupedList(filtered, allData) {
+  const listEl = document.getElementById("cy-list");
+  if (!filtered.length) { listEl.innerHTML = '<div class="wa-card text-center py-8 text-gray-500 text-sm">서울 지역 분양 공고가 없습니다</div>'; return; }
+  const groups = {};
+  const allSeoul = _cyFilterSeoul(allData);
+  for (const d of filtered) { const gu = _cyExtractGu(d) || "기타"; if (!groups[gu]) groups[gu] = []; groups[gu].push(d); }
+  const sortedGroups = Object.entries(groups).sort((a, b) => b[1].length - a[1].length);
+  const guTc = (_cyTab === "all") ? null : (_cyTypeColors[_cyTab] || _cyTypeColors.apt);
+  const groupHtml = sortedGroups.map(([gu, items]) => {
+    const tc = guTc || _cyTypeColors[_cyDominantTypeByGu[gu] || "apt"] || _cyTypeColors.apt;
+    const cards = items.map(d => _cyRenderCard(d, allSeoul.indexOf(d))).join("");
+    return `<div class="cy-gu-block wa-card !p-3 mb-3"><div class="flex items-center gap-2 mb-2"><h3 class="text-sm font-bold text-gray-300">${esc(gu)}</h3><span class="text-xs ${tc.text} font-medium">${items.length}건</span></div><div class="space-y-1.5">${cards}</div></div>`;
+  }).join("");
+  listEl.innerHTML = `<div class="cy-masonry">${groupHtml}</div>`;
+}
+
+function showCheongyak() {
+  hideAllPages();
+  document.getElementById("cheongyak-page").classList.remove("hidden");
+  if (!_cyData[_cyTab]) { loadCheongyakTab(_cyTab); }
+  else { setTimeout(() => { _cyInitMap(); if (_cyMap) _cyMap.invalidateSize(); _cyRenderSeoulMap(_cyData[_cyTab]); }, 100); }
+}
+
+function _cyUpdateTabBadges() {
+  const tabs = ["apt", "officetel", "remaining", "publicrent", "opt"];
+  for (const t of tabs) {
+    const btn = document.querySelector(`[data-cy-tab="${t}"]`);
+    if (!btn) continue;
+    let badge = btn.querySelector(".cy-tab-badge");
+    const d = _cyData[t];
+    if (!d) { if (badge) badge.remove(); continue; }
+    const seoul = _cyFilterSeoul(d);
+    const active = seoul.filter(x => x.status === "접수중").length;
+    const upcoming = seoul.filter(x => x.status === "접수예정" || x.status === "일정미정").length;
+    if (active + upcoming === 0) { if (badge) badge.remove(); continue; }
+    const text = active > 0 ? `${active}` + (upcoming > 0 ? `+${upcoming}` : "") : `${upcoming}`;
+    if (!badge) { badge = document.createElement("span"); badge.className = "cy-tab-badge"; btn.appendChild(badge); }
+    badge.className = `cy-tab-badge ml-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none ${active > 0 ? "bg-emerald-600 text-white" : "bg-gray-600 text-gray-300"}`;
+    badge.textContent = text;
+  }
+  // "전체" tab badge = sum of all
+  const allBtn = document.querySelector('[data-cy-tab="all"]');
+  if (allBtn) {
+    let badge = allBtn.querySelector(".cy-tab-badge");
+    let totalActive = 0, totalUpcoming = 0;
+    for (const t of tabs) { const d = _cyData[t]; if (!d) continue; const s = _cyFilterSeoul(d); totalActive += s.filter(x => x.status === "접수중").length; totalUpcoming += s.filter(x => x.status === "접수예정" || x.status === "일정미정").length; }
+    if (totalActive + totalUpcoming === 0) { if (badge) badge.remove(); }
+    else {
+      const text = totalActive > 0 ? `${totalActive}` + (totalUpcoming > 0 ? `+${totalUpcoming}` : "") : `${totalUpcoming}`;
+      if (!badge) { badge = document.createElement("span"); badge.className = "cy-tab-badge"; allBtn.appendChild(badge); }
+      badge.className = `cy-tab-badge ml-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none ${totalActive > 0 ? "bg-emerald-600 text-white" : "bg-gray-600 text-gray-300"}`;
+      badge.textContent = text;
+    }
+  }
+}
+
+function switchCyTab(tab) {
+  _cyTab = tab; _cySelectedGu = null;
+  document.querySelectorAll(".cy-tab").forEach(btn => { btn.classList.toggle("cy-tab-active", btn.dataset.cyTab === tab); btn.classList.toggle("text-gray-400", btn.dataset.cyTab !== tab); });
+  if (_cyData[tab]) { const s = _cyFilterSeoul(_cyData[tab]); _cyRenderGroupedList(s, _cyData[tab]); _cyUpdateSummary(s); _cyRenderGuBars(_cyData[tab]); _cyRenderSeoulMap(_cyData[tab]); }
+  else { loadCheongyakTab(tab); }
+}
+
+async function loadCheongyakTab(tab) {
+  const loading = document.getElementById("cy-loading"); const errorEl = document.getElementById("cy-error"); const listEl = document.getElementById("cy-list");
+  loading.classList.remove("hidden"); errorEl.classList.add("hidden"); listEl.innerHTML = "";
+  const endpoints = { apt: "/api/cheongyak/apt", officetel: "/api/cheongyak/officetel", remaining: "/api/cheongyak/remaining", publicrent: "/api/cheongyak/public-rent", opt: "/api/cheongyak/opt" };
+  try {
+    let data;
+    if (tab === "all") {
+      const types = ["apt", "officetel", "remaining", "publicrent", "opt"];
+      const results = await Promise.allSettled(types.map(t => api(endpoints[t])));
+      data = [];
+      results.forEach((r, i) => {
+        if (r.status === "fulfilled" && Array.isArray(r.value)) {
+          _cyData[types[i]] = r.value;
+          for (const d of r.value) { d._type = types[i]; }
+          data.push(...r.value);
+        }
+      });
+      const statusOrder = {"접수중": 0, "접수예정": 1, "일정미정": 2, "마감": 3};
+      data.sort((a, b) => (statusOrder[a.status] ?? 9) - (statusOrder[b.status] ?? 9));
+      _cyCalcDominantTypes(data);
+    } else {
+      data = await api(endpoints[tab]);
+    }
+    _cyData[tab] = data;
+    const s = _cyFilterSeoul(data); _cyRenderGroupedList(s, data); _cyUpdateSummary(s); _cyRenderGuBars(data); _cyUpdateTabBadges();
+    setTimeout(() => { _cyInitMap(); if (_cyMap) _cyMap.invalidateSize(); _cyRenderSeoulMap(data); }, 100);
+  } catch (err) { document.getElementById("cy-error-text").textContent = err.message; errorEl.classList.remove("hidden"); }
+  finally { loading.classList.add("hidden"); }
+}
+
+function openCyDetail(idx) {
+  const allSeoul = _cyFilterSeoul(_cyData[_cyTab]); const d = allSeoul[idx]; if (!d) return;
+  document.getElementById("cy-detail-title").textContent = d.house_nm;
+  const rows = [["상태", cyStatusBadge(d.status)],["주택구분", `${d.house_secd_nm||""} / ${d.house_dtl_secd_nm||""}`],["분양유형", d.rent_secd_nm||"-"],["지역", (_cyExtractGu(d)||d.region)||"-"],["공급위치", d.address||"-"],["총 공급세대", `${d.total_supply}세대`],["모집공고일", d.announcement_date||"-"],["특별공급 접수", d.special_start&&d.special_end?`${d.special_start} ~ ${d.special_end}`:"-"],["일반 접수", d.reception_start&&d.reception_end?`${d.reception_start} ~ ${d.reception_end}`:"-"],["당첨자 발표", d.winner_date||"-"],["계약기간", d.contract_start&&d.contract_end?`${d.contract_start} ~ ${d.contract_end}`:"-"],["시공사", d.constructor||"-"],["문의전화", d.phone||"-"],["입주예정", d.move_in_month||"-"]];
+  let html = `<table class="w-full text-sm">${rows.map(([k,v])=>`<tr class="border-b border-gray-700/50"><td class="py-2 pr-3 text-gray-500 whitespace-nowrap align-top" style="width:100px">${esc(k)}</td><td class="py-2 text-gray-300">${v}</td></tr>`).join("")}</table>`;
+  if (d.homepage) html += `<a href="${esc(d.homepage)}" target="_blank" rel="noopener" class="inline-block mt-3 text-xs text-navy-400 hover:underline">시행사 홈페이지 &rarr;</a>`;
+  if (d.pblanc_url) html += `<a href="${esc(d.pblanc_url)}" target="_blank" rel="noopener" class="inline-block mt-2 ml-3 text-xs text-emerald-400 hover:underline">청약홈 공고 보기 &rarr;</a>`;
+  if (d.house_manage_no && d.pblanc_no) {
+    const itemTab = (_cyTab === "all" && d._type) ? d._type : _cyTab;
+    const hm = esc(d.house_manage_no), pn = esc(d.pblanc_no), tt = itemTab === "officetel" ? "officetel" : (itemTab === "publicrent" ? "public-rent" : (itemTab === "opt" ? "opt" : "apt"));
+    const isAptType = ["apt","remaining"].includes(itemTab);
+    html += `<div class="mt-4 pt-4 border-t border-gray-700 flex flex-wrap gap-2">${isAptType?`<button onclick="loadCyHousingTypes('${hm}','${pn}')" class="text-xs bg-navy-700 text-white px-3 py-1.5 rounded hover:bg-navy-800 transition">주택형별 상세</button>`:""}<button onclick="loadCyCompetition('${hm}','${pn}','${tt}')" class="text-xs bg-emerald-700 text-white px-3 py-1.5 rounded hover:bg-emerald-800 transition">경쟁률</button>${isAptType?`<button onclick="loadCyScores('${hm}','${pn}')" class="text-xs bg-amber-700 text-white px-3 py-1.5 rounded hover:bg-amber-800 transition">당첨 가점</button><button onclick="loadCySpecialSupply('${hm}','${pn}')" class="text-xs bg-purple-700 text-white px-3 py-1.5 rounded hover:bg-purple-800 transition">특별공급 현황</button>`:""}</div><div id="cy-detail-types" class="mt-3"></div><div id="cy-detail-competition" class="mt-3"></div><div id="cy-detail-scores" class="mt-3"></div><div id="cy-detail-special" class="mt-3"></div>`;
+  }
+  document.getElementById("cy-detail-content").innerHTML = html;
+  document.getElementById("cy-detail-modal").classList.remove("hidden");
+}
+
+async function loadCyHousingTypes(hm, pn) {
+  const c = document.getElementById("cy-detail-types"); c.innerHTML = '<p class="text-xs text-gray-500">불러오는 중...</p>';
+  try { const types = await api(`/api/cheongyak/apt/${encodeURIComponent(hm)}/${encodeURIComponent(pn)}/types`); if (!types.length) { c.innerHTML = '<p class="text-xs text-gray-500">주택형별 정보 없음</p>'; return; }
+    c.innerHTML = `<h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">주택형별 공급 현황</h4><div class="overflow-x-auto"><table class="w-full text-xs"><thead><tr class="border-b border-gray-700"><th class="text-left px-2 py-1.5 text-gray-500">주택형</th><th class="text-right px-2 py-1.5 text-gray-500">공급면적</th><th class="text-right px-2 py-1.5 text-gray-500">공급</th><th class="text-right px-2 py-1.5 text-gray-500">특별</th><th class="text-right px-2 py-1.5 text-gray-500">일반</th><th class="text-right px-2 py-1.5 text-gray-500">최고분양가</th></tr></thead><tbody class="divide-y divide-gray-800">${types.map(t=>`<tr><td class="px-2 py-1.5 font-medium text-gray-300">${esc(t.house_ty)}</td><td class="px-2 py-1.5 text-right tabular-nums">${t.supply_area||"-"}</td><td class="px-2 py-1.5 text-right tabular-nums font-medium">${t.supply_count}</td><td class="px-2 py-1.5 text-right tabular-nums">${t.special_count}</td><td class="px-2 py-1.5 text-right tabular-nums">${t.general_count}</td><td class="px-2 py-1.5 text-right tabular-nums">${t.lttot_top_amount?Number(t.lttot_top_amount).toLocaleString("ko-KR")+"만원":"-"}</td></tr>`).join("")}</tbody></table></div>`;
+  } catch (err) { c.innerHTML = `<p class="text-xs text-red-400">${esc(err.message)}</p>`; }
+}
+
+async function loadCyCompetition(hm, pn, tabType) {
+  const c = document.getElementById("cy-detail-competition"); c.innerHTML = '<p class="text-xs text-gray-500">경쟁률 불러오는 중...</p>';
+  try { const data = await api(`/api/cheongyak/${tabType}/${encodeURIComponent(hm)}/${encodeURIComponent(pn)}/competition`); if (!data.length) { c.innerHTML = '<p class="text-xs text-gray-500">경쟁률 정보 없음</p>'; return; }
+    const isApt = tabType === "apt";
+    c.innerHTML = `<h4 class="text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-2">경쟁률</h4><div class="overflow-x-auto"><table class="w-full text-xs"><thead><tr class="border-b border-gray-700"><th class="text-left px-2 py-1.5 text-gray-500">주택형</th>${isApt?'<th class="text-center px-2 py-1.5 text-gray-500">순위</th><th class="text-left px-2 py-1.5 text-gray-500">지역</th>':''}<th class="text-right px-2 py-1.5 text-gray-500">공급</th><th class="text-right px-2 py-1.5 text-gray-500">신청</th><th class="text-right px-2 py-1.5 text-gray-500">경쟁률</th></tr></thead><tbody class="divide-y divide-gray-800">${data.map(r=>{const rate=parseFloat(r.competition_rate)||0;const cls=rate>=10?"text-red-400 font-bold":rate>=3?"text-amber-400":"text-gray-300";return `<tr><td class="px-2 py-1.5 text-gray-300">${esc(r.house_ty)}</td>${isApt?`<td class="px-2 py-1.5 text-center">${r.rank}순위</td><td class="px-2 py-1.5 text-gray-400">${esc(r.region_name||"")}</td>`:""}<td class="px-2 py-1.5 text-right tabular-nums">${r.supply_count}</td><td class="px-2 py-1.5 text-right tabular-nums">${Number(r.applicants).toLocaleString("ko-KR")}</td><td class="px-2 py-1.5 text-right tabular-nums ${cls}">${r.competition_rate}:1</td></tr>`;}).join("")}</tbody></table></div>`;
+  } catch (err) { c.innerHTML = `<p class="text-xs text-red-400">${esc(err.message)}</p>`; }
+}
+
+async function loadCyScores(hm, pn) {
+  const c = document.getElementById("cy-detail-scores"); c.innerHTML = '<p class="text-xs text-gray-500">가점 불러오는 중...</p>';
+  try { const data = await api(`/api/cheongyak/apt/${encodeURIComponent(hm)}/${encodeURIComponent(pn)}/scores`); if (!data.length) { c.innerHTML = '<p class="text-xs text-gray-500">가점 정보 없음</p>'; return; }
+    c.innerHTML = `<h4 class="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-2">당첨 가점</h4><div class="overflow-x-auto"><table class="w-full text-xs"><thead><tr class="border-b border-gray-700"><th class="text-left px-2 py-1.5 text-gray-500">주택형</th><th class="text-left px-2 py-1.5 text-gray-500">지역</th><th class="text-right px-2 py-1.5 text-gray-500">최저</th><th class="text-right px-2 py-1.5 text-gray-500">최고</th><th class="text-right px-2 py-1.5 text-gray-500">평균</th></tr></thead><tbody class="divide-y divide-gray-800">${data.map(r=>`<tr><td class="px-2 py-1.5 text-gray-300">${esc(r.house_ty)}</td><td class="px-2 py-1.5 text-gray-400">${esc(r.region_name)}</td><td class="px-2 py-1.5 text-right tabular-nums">${r.min_score||"-"}</td><td class="px-2 py-1.5 text-right tabular-nums font-bold text-amber-300">${r.max_score||"-"}</td><td class="px-2 py-1.5 text-right tabular-nums">${r.avg_score||"-"}</td></tr>`).join("")}</tbody></table></div>`;
+  } catch (err) { c.innerHTML = `<p class="text-xs text-red-400">${esc(err.message)}</p>`; }
+}
+
+async function loadCySpecialSupply(hm, pn) {
+  const c = document.getElementById("cy-detail-special"); c.innerHTML = '<p class="text-xs text-gray-500">특별공급 불러오는 중...</p>';
+  try { const data = await api(`/api/cheongyak/apt/${encodeURIComponent(hm)}/${encodeURIComponent(pn)}/special-supply`); if (!data.length) { c.innerHTML = '<p class="text-xs text-gray-500">특별공급 정보 없음</p>'; return; }
+    c.innerHTML = `<h4 class="text-xs font-semibold text-purple-400 uppercase tracking-wider mb-2">특별공급 신청현황</h4><div class="overflow-x-auto"><table class="w-full text-xs"><thead><tr class="border-b border-gray-700"><th class="text-left px-2 py-1.5 text-gray-500">주택형</th><th class="text-right px-2 py-1.5 text-gray-500">총 특별</th><th class="text-right px-2 py-1.5 text-gray-500">다자녀</th><th class="text-right px-2 py-1.5 text-gray-500">신혼</th><th class="text-right px-2 py-1.5 text-gray-500">생애최초</th><th class="text-right px-2 py-1.5 text-gray-500">노부모</th><th class="text-right px-2 py-1.5 text-gray-500">기관</th></tr></thead><tbody class="divide-y divide-gray-800">${data.map(r=>`<tr><td class="px-2 py-1.5 text-gray-300">${esc(r.house_ty)}</td><td class="px-2 py-1.5 text-right tabular-nums font-medium">${r.special_total}</td><td class="px-2 py-1.5 text-right tabular-nums">${r.multi_child}</td><td class="px-2 py-1.5 text-right tabular-nums">${r.newlywed}</td><td class="px-2 py-1.5 text-right tabular-nums">${r.first_life}</td><td class="px-2 py-1.5 text-right tabular-nums">${r.elderly_parent}</td><td class="px-2 py-1.5 text-right tabular-nums">${r.institution}</td></tr>`).join("")}</tbody></table></div>`;
+  } catch (err) { c.innerHTML = `<p class="text-xs text-red-400">${esc(err.message)}</p>`; }
+}
+
+function refreshCheongyak() {
+  _cyData = { all: null, apt: null, officetel: null, remaining: null, publicrent: null, opt: null };
+  _cySelectedGu = null;
+  loadCheongyakTab(_cyTab);
 }
