@@ -1,73 +1,53 @@
-# React + TypeScript + Vite
+# Wealth Advisor — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React 19 + Vite + TypeScript SPA. FastAPI(`../server`)와 Twin Architecture로 동작합니다.
 
-Currently, two official plugins are available:
+## 스택
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React 19, TypeScript, Vite 8
+- Tailwind CSS v4
+- Chart.js + react-chartjs-2 (백테스트 차트)
+- react-markdown (AI 상담 결과 렌더링)
+- Axios (API 클라이언트, JWT 자동 첨부)
 
-## React Compiler
+## 개발 실행
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev        # http://localhost:5173 (FastAPI :8000으로 프록시)
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+FastAPI 서버가 먼저 실행 중이어야 합니다:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cd ../../../../
+uv run python examples/run_web.py
 ```
+
+## 프로덕션 빌드
+
+```bash
+npm run build      # dist/ 생성
+```
+
+FastAPI가 `dist/`를 직접 서빙합니다 (`server/app.py` catch-all 라우트).
+
+## 페이지 구성
+
+| 경로 | 페이지 | 설명 |
+|------|--------|------|
+| `/` | HomePage | 랜딩 |
+| `/login` | AuthPage | 로그인 / 회원가입 |
+| `/dashboard` | DashboardPage | 포트폴리오 요약 |
+| `/assets` | AssetsPage | 자산 CRUD |
+| `/profile` | ProfilePage | 재무 프로필 편집 |
+| `/agent` | AgentPage | LangGraph 멀티에이전트 상담 |
+| `/backtest` | BacktestPage | 전략 백테스트 + SSE 그리드 서치 |
+| `/cheongyak` | CheongyakPage | 청약 정보 (5개 탭) |
+| `/admin` | AdminPage | 사용자 승인/관리 |
+
+## 주요 구현 특이사항
+
+- **SSE 그리드 서치**: `EventSource`는 POST/헤더 미지원 → `fetch` + `ReadableStream`으로 구현
+- **자산 폼**: `asset_type`별 조건부 필드 (주식/예금/부동산) — 모달 없이 인라인 패널
+- **JWT 자동 첨부**: `src/api/client.ts`의 Axios 인터셉터에서 `localStorage` 토큰 주입
