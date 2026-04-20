@@ -17,7 +17,7 @@ load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 import uvicorn
 
-from wealth_advisor.web.app import app  # noqa: E402, F401
+from wealth_advisor.server.app import app  # noqa: E402, F401
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -32,13 +32,13 @@ if __name__ == "__main__":
     )
 
     if args.https:
-        from wealth_advisor.web.certs import ensure_certs
+        from wealth_advisor.server.certs import ensure_certs
 
         cert, key = ensure_certs()
         port = args.port or 8443
         print(f"\n  HTTPS → https://localhost:{port}\n")
         uvicorn.run(
-            "wealth_advisor.web.app:app",
+            "wealth_advisor.server.app:app",
             port=port,
             ssl_certfile=cert,
             ssl_keyfile=key,
@@ -47,4 +47,4 @@ if __name__ == "__main__":
     else:
         port = args.port or 8000
         print(f"\n  HTTP → http://localhost:{port}\n")
-        uvicorn.run("wealth_advisor.web.app:app", port=port, **common)
+        uvicorn.run("wealth_advisor.server.app:app", port=port, **common)
