@@ -64,15 +64,15 @@ export default function ProfilePage() {
   }
 
   if (loading) {
-    return <div className="max-w-2xl mx-auto px-4 py-12 text-center text-gray-400 animate-pulse">로딩 중...</div>
+    return <div className="max-w-2xl mx-auto px-4 py-12 text-center text-gray-500 dark:text-gray-400 animate-pulse">로딩 중...</div>
   }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-1">재무 프로필</h1>
-      <p className="text-gray-400 text-sm mb-6">AI 상담 시 사용되는 개인 재무 정보</p>
+      <p className="text-gray-600 dark:text-gray-400 text-sm mb-6">AI 상담 시 사용되는 개인 재무 정보</p>
 
-      <form onSubmit={handleSubmit} className="bg-gray-800 border border-gray-700 rounded-xl p-6 space-y-5">
+      <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm dark:shadow-none rounded-xl p-6 space-y-5 text-gray-900 dark:text-gray-100">
         {success && (
           <div className="bg-emerald-900/40 border border-emerald-700 text-emerald-300 rounded-lg p-3 text-sm">
             프로필이 저장되었습니다.
@@ -84,22 +84,22 @@ export default function ProfilePage() {
 
         <div className="grid sm:grid-cols-2 gap-5">
           <div>
-            <label className="text-xs text-gray-400 mb-1.5 block">연령대</label>
+            <label className="text-xs text-gray-600 dark:text-gray-400 mb-1.5 block">연령대</label>
             <input
               type="text"
               value={form.age_band ?? ''}
               onChange={(e) => set('age_band', e.target.value)}
               placeholder="예) 30대 초반"
-              className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500"
+              className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500"
             />
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 mb-1.5 block">소득 형태</label>
+            <label className="text-xs text-gray-600 dark:text-gray-400 mb-1.5 block">소득 형태</label>
             <select
               value={form.employment_type ?? ''}
               onChange={(e) => set('employment_type', e.target.value)}
-              className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500"
+              className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500"
             >
               <option value="">선택 안 함</option>
               {Object.entries(EMPLOYMENT_LABELS).map(([k, v]) => (
@@ -109,11 +109,11 @@ export default function ProfilePage() {
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 mb-1.5 block">연 소득 구간</label>
+            <label className="text-xs text-gray-600 dark:text-gray-400 mb-1.5 block">연 소득 구간</label>
             <select
               value={form.annual_income_band ?? ''}
               onChange={(e) => set('annual_income_band', e.target.value)}
-              className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500"
+              className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500"
             >
               <option value="">선택 안 함</option>
               {Object.entries(INCOME_LABELS).map(([k, v]) => (
@@ -123,7 +123,7 @@ export default function ProfilePage() {
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 mb-1.5 block">월 여유 자금 (원)</label>
+            <label className="text-xs text-gray-600 dark:text-gray-400 mb-1.5 block">월 여유 자금 (원)</label>
             <input
               type="text"
               value={form.monthly_surplus_krw != null ? form.monthly_surplus_krw.toLocaleString() : ''}
@@ -132,16 +132,16 @@ export default function ProfilePage() {
                 set('monthly_surplus_krw', isNaN(v) ? null : v)
               }}
               placeholder="예) 500,000"
-              className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500"
+              className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500"
             />
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 mb-1.5 block">목표 기간</label>
+            <label className="text-xs text-gray-600 dark:text-gray-400 mb-1.5 block">목표 기간</label>
             <select
               value={form.horizon_months ?? ''}
               onChange={(e) => set('horizon_months', e.target.value ? Number(e.target.value) : null)}
-              className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500"
+              className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500"
             >
               <option value="">선택 안 함</option>
               {HORIZON_OPTIONS.map((o) => (
@@ -151,11 +151,11 @@ export default function ProfilePage() {
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 mb-1.5 block">위험 감수 성향</label>
+            <label className="text-xs text-gray-600 dark:text-gray-400 mb-1.5 block">위험 감수 성향</label>
             <select
               value={form.risk_tolerance ?? ''}
               onChange={(e) => set('risk_tolerance', e.target.value)}
-              className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500"
+              className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500"
             >
               <option value="">선택 안 함</option>
               {Object.entries(RISK_LABELS).map(([k, v]) => (
@@ -172,7 +172,7 @@ export default function ProfilePage() {
             onChange={(e) => set('goal', e.target.value)}
             placeholder="예) 5년 내 내 집 마련, 노후 준비..."
             rows={3}
-            className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500 resize-none"
+            className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500 resize-none"
           />
         </div>
 

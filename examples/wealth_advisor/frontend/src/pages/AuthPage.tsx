@@ -1,10 +1,11 @@
-import { useState, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect, type FormEvent } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import api from '../api/client'
 
 export default function AuthPage() {
-  const [mode, setMode] = useState<'login' | 'register'>('login')
+  const location = useLocation()
+  const [mode, setMode] = useState<'login' | 'register'>(location.state?.mode || 'login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
@@ -46,15 +47,15 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center px-4">
-      <div className="bg-gray-800 border border-gray-700 rounded-lg p-8 w-full max-w-md shadow-xl">
+    <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center px-4 bg-gray-50 dark:bg-gray-900">
+      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-8 w-full max-w-md shadow-xl text-gray-900 dark:text-gray-100">
         <div className="text-center mb-6">
-          <img src="/images/logo-128.png" alt="logo" className="w-16 h-16 mx-auto mb-3" />
+          <img src="/images/logo-128.png" alt="logo" className="w-16 h-16 mx-auto mb-3 drop-shadow-md" />
           <h2 className="text-xl font-bold">{mode === 'login' ? '로그인' : '회원가입'}</h2>
         </div>
 
-        {error && <div className="bg-red-900/50 border border-red-700 text-red-300 rounded p-3 mb-4 text-sm">{error}</div>}
-        {success && <div className="bg-emerald-900/50 border border-emerald-700 text-emerald-300 rounded p-3 mb-4 text-sm">{success}</div>}
+        {error && <div className="bg-red-50 dark:bg-red-900/50 border border-red-200 dark:border-red-700 text-red-600 dark:text-red-300 rounded p-3 mb-4 text-sm">{error}</div>}
+        {success && <div className="bg-emerald-50 dark:bg-emerald-900/50 border border-emerald-200 dark:border-emerald-700 text-emerald-600 dark:text-emerald-300 rounded p-3 mb-4 text-sm">{success}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === 'register' && (
@@ -64,7 +65,7 @@ export default function AuthPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="wa-input-auth"
+              className="w-full px-4 py-3 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
             />
           )}
           <input
@@ -73,7 +74,7 @@ export default function AuthPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="wa-input-auth"
+            className="w-full px-4 py-3 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
           />
           <input
             type="password"
@@ -82,7 +83,7 @@ export default function AuthPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={8}
-            className="wa-input-auth"
+            className="w-full px-4 py-3 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
           />
           <button
             type="submit"
@@ -96,7 +97,7 @@ export default function AuthPage() {
         <div className="text-center mt-4">
           <button
             onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(''); setSuccess('') }}
-            className="text-gray-400 hover:text-white text-sm transition"
+            className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm transition"
           >
             {mode === 'login' ? '계정이 없으신가요? 회원가입' : '이미 계정이 있으신가요? 로그인'}
           </button>

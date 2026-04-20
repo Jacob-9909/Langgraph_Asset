@@ -123,30 +123,36 @@ examples/
 ├── run_wealth_advisor.py          CLI 진입점
 ├── run_web.py                     웹 서버 진입점
 └── wealth_advisor/
-    ├── graph.py                   StateGraph 조립, 라우팅
-    ├── state.py                   AssetAdvisoryState 정의
-    ├── config.py                  모델, 리서치 설정
     ├── cli.py                     CLI 실행 루프
-    ├── profile_helpers.py         프로필 누락 필드 검사
-    ├── nodes/
-    │   ├── profile.py             프로필 추출 + HitL
-    │   ├── product_research.py    예금/적금/보험/채권 조사
-    │   ├── news_research.py       미국/일본/한국 금리 조사
-    │   ├── tax_research.py        국세청 세법 해석 조회
-    │   └── advisor.py             종합 상담 리포트 생성
+    ├── advisor/                   LangGraph 에이전트 코어
+    │   ├── graph.py               StateGraph 조립, 라우팅
+    │   ├── state.py               AssetAdvisoryState 정의
+    │   ├── config.py              모델, 리서치 설정
+    │   ├── profile_helpers.py     프로필 누락 필드 검사
+    │   ├── llm_utils.py           LLM 유틸리티
+    │   ├── logging_utils.py       로깅 유틸리티
+    │   ├── nodes/
+    │   │   ├── profile.py         프로필 추출 + HitL
+    │   │   ├── product_research.py 예금/적금/보험/채권 조사
+    │   │   ├── news_research.py   미국/일본/한국 금리 조사
+    │   │   ├── tax_research.py    국세청 세법 해석 조회
+    │   │   └── advisor.py         종합 상담 리포트 생성
+    │   └── tools/
+    │       ├── naver_web.py       Naver 검색 API 래퍼
+    │       ├── tavily_search.py   Tavily 검색 래퍼
+    │       └── nts_law.py         law.go.kr API 래퍼
     ├── cheongyak/
-    │   ├── __init__.py            청약 모듈 초기화
     │   └── api_client.py          공공데이터포털 청약 API 클라이언트
-    ├── tools/
-    │   ├── naver_web.py           Naver 검색 API 래퍼
-    │   ├── tavily_search.py       Tavily 검색 래퍼
-    │   └── nts_law.py             law.go.kr API 래퍼
+    ├── trading/                   백테스트 엔진
+    │   ├── stock_analyzer.py      전략별 수익률 시뮬레이션, 그리드 서치
+    │   └── ai_analysis.py         AI 전략 추천
     ├── frontend/                  React SPA (Vite + TypeScript)
     │   ├── src/
     │   │   ├── pages/             9개 페이지 컴포넌트
     │   │   ├── components/        공통 레이아웃, 백테스트 차트/검색
     │   │   ├── auth/              AuthContext, ProtectedRoute
     │   │   ├── api/               Axios 클라이언트 (JWT 자동 첨부)
+    │   │   ├── hooks/             커스텀 훅
     │   │   ├── types/             API 응답 타입 정의
     │   │   ├── constants/         자산 유형, 리스크 레이블
     │   │   └── utils/             숫자 포맷 유틸
@@ -154,6 +160,7 @@ examples/
     └── server/                    FastAPI JSON API
         ├── app.py                 FastAPI 앱 (CORS, Rate Limiting, SPA 서빙)
         ├── auth.py                JWT 인증
+        ├── certs.py               SSL 인증서 관리
         ├── database.py            SQLAlchemy 엔진
         ├── models.py              ORM 모델
         ├── schemas.py             Pydantic 스키마
