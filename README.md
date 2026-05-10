@@ -35,20 +35,23 @@ CHEONGYAK_API_KEY
 ## 실행 명령어
 
 ```bash
-# Web UI — http://localhost:8000
-uv run python scripts/run_web.py
+# Docker(Postgres) + Web 서버 한 번에 시작 — http://localhost:8000
+uv run python scripts/dev.py
 
-# Web UI — HTTPS https://localhost:8443
-uv run python scripts/run_web.py --https
+# Docker(Postgres) + CLI 상담
+uv run python scripts/dev.py --cli
+
+# HTTPS — https://localhost:8443
+uv run python scripts/dev.py --https
 
 # 포트 지정
-uv run python scripts/run_web.py --port 9000
+uv run python scripts/dev.py --port 9000
 
-# CLI 대화형 상담
-uv run python scripts/run_advisor.py
+# Postgres만 시작 (개발 중 DB만 필요할 때)
+uv run python scripts/dev.py docker
 
-# 패키지로 직접 실행 (CLI)
-uv run python -m wealth_advisor
+# Postgres 종료
+uv run python scripts/dev.py stop
 ```
 
 ## 파일 구조

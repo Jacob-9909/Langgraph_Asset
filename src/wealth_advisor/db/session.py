@@ -9,10 +9,14 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://postgres:8350@127.0.0.1:5433/langgraph",
+    "postgresql+psycopg://postgres:8350@127.0.0.1:5433/langgraph",
 )
 
-engine = create_engine(DATABASE_URL, pool_pre_ping=True) # 연결 끊김 감지 및 자동 복구
+# psycopg3 dialect: bare postgresql:// → postgresql+psycopg://
+if DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg://", 1)
+
+engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False) # 세션 팩토리
 
 

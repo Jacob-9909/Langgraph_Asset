@@ -36,6 +36,7 @@ async function api(path, opts = {}) {
 function showAuthTab(tab) {
   document.getElementById("login-form").classList.toggle("hidden", tab !== "login");
   document.getElementById("register-form").classList.toggle("hidden", tab !== "register");
+  document.getElementById("demo-login-btn")?.classList.toggle("hidden", tab !== "login");
   const loginTab = document.getElementById("tab-login");
   const regTab = document.getElementById("tab-register");
   const active = ["bg-gray-600", "text-navy-200", "shadow-sm"];
@@ -65,6 +66,26 @@ async function handleLogin(e) {
   } catch (err) {
     errEl.textContent = err.message;
     errEl.classList.remove("hidden");
+  }
+}
+
+async function loginAsDemo() {
+  const btn = document.getElementById("demo-login-btn");
+  const errEl = document.getElementById("login-error");
+  errEl.classList.add("hidden");
+  btn.disabled = true;
+  btn.textContent = "로그인 중...";
+  try {
+    const data = await api("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email: "demo@example.com", password: "demo1234" }),
+    });
+    setAuth(data);
+  } catch (err) {
+    errEl.textContent = "체험 계정 로그인 실패: " + err.message;
+    errEl.classList.remove("hidden");
+    btn.disabled = false;
+    btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>체험 계정으로 바로 시작<span class="text-xs opacity-60 font-normal ml-1">가입 불필요</span>`;
   }
 }
 
