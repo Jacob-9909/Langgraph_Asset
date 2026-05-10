@@ -31,99 +31,71 @@
   <!-- ════════ Landing / Home ════════ -->
   <div id="home-page" class="hidden min-h-screen bg-gray-950 text-white overflow-hidden">
     <nav class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <img src="/static/images/logo-48.png" alt="" class="w-8 h-8 rounded" />
-        <span class="text-sm font-semibold tracking-tight">Wealth Advisor</span>
+      <div class="flex items-center gap-3">
+        <img src="/static/images/logo-48.png" alt="WA" class="w-9 h-9 rounded-xl shadow" />
+        <span class="font-bold text-lg tracking-tight text-navy-100">Wealth Advisor</span>
       </div>
       <button onclick="showAuth()" class="bg-white/10 hover:bg-white/20 px-4 py-1.5 rounded text-sm transition">로그인</button>
     </nav>
-
-    <section class="max-w-7xl mx-auto px-6 pt-16 pb-20 lg:pt-24 lg:pb-28">
-      <div class="grid lg:grid-cols-2 gap-12 items-center">
-        <div>
-          <p class="text-navy-200 text-sm font-medium tracking-wider uppercase mb-4 animate-fadein">AI-Powered Wealth Management</p>
-          <h1 class="text-4xl lg:text-5xl font-bold leading-tight mb-6">
-            <span class="animate-typein block">당신의 자산,</span>
-            <span class="animate-typein animation-delay-500 block text-navy-200">AI가 분석합니다</span>
-          </h1>
-          <p class="text-gray-400 text-base lg:text-lg leading-relaxed mb-8 animate-fadein animation-delay-1000">
-            프로필과 보유 자산을 등록하면, 시장 조사 / 거시경제 / 세법 해석까지<br class="hidden lg:block" />
-            멀티 에이전트가 맞춤 분석 리포트를 작성해 드립니다.
-          </p>
-          <div class="flex gap-3 animate-fadein animation-delay-1500">
-            <button onclick="showAuth()" class="bg-white text-navy-900 px-6 py-2.5 rounded-lg text-sm font-semibold hover:bg-navy-50 transition shadow-lg">시작하기</button>
-            <a href="#home-features" class="border border-white/20 px-6 py-2.5 rounded-lg text-sm hover:bg-white/10 transition">더 알아보기</a>
-          </div>
-        </div>
-        <div class="hidden lg:flex justify-center animate-fadein animation-delay-500">
-          <img src="/static/images/logo-256.png" alt="" class="w-64 h-64 drop-shadow-2xl animate-float" />
+    <section class="max-w-7xl mx-auto px-6 pt-16 pb-24 flex flex-col lg:flex-row items-center gap-16">
+      <div class="flex-1 text-center lg:text-left">
+        <p class="text-navy-200 text-sm font-medium tracking-wider uppercase mb-4 animate-fadein">AI-Powered Wealth Management</p>
+        <h1 class="text-4xl lg:text-5xl font-extrabold leading-tight mb-6 animate-fadein animation-delay-500">
+          내 자산, 이제<br />
+          <span class="animate-typein animation-delay-500 block text-navy-200">AI가 분석합니다</span>
+        </h1>
+        <p class="text-gray-400 text-base leading-relaxed mb-8 animate-fadein animation-delay-1000">
+          프로필과 보유 자산을 등록하면, 시장 조사 / 거시경제 / 세법 해석까지<br class="hidden lg:block" />
+          통합 분석한 맞춤 상담 리포트를 생성합니다.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start animate-fadein animation-delay-1500">
+          <button onclick="showAuth()" class="bg-white text-navy-900 px-6 py-2.5 rounded-lg text-sm font-semibold hover:bg-navy-50 transition shadow-lg">시작하기</button>
         </div>
       </div>
-    </section>
-
-    <section id="home-features" class="bg-gray-900/50 py-16">
-      <div class="max-w-7xl mx-auto px-6">
-        <h2 class="text-center text-2xl font-bold mb-3 animate-fadein-scroll">어떻게 작동하나요?</h2>
-        <p class="text-center text-gray-500 text-sm mb-12 animate-fadein-scroll">3단계로 맞춤 자산 관리 리포트를 받아보세요</p>
-        <div class="grid md:grid-cols-3 gap-8">
-          <div class="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:bg-gray-800 transition group animate-fadein-scroll">
-            <div class="w-10 h-10 bg-navy-600 rounded-lg flex items-center justify-center text-white text-lg font-bold mb-4 group-hover:scale-110 transition-transform">1</div>
-            <h3 class="font-semibold text-base mb-2">프로필 등록</h3>
-            <p class="text-gray-400 text-sm leading-relaxed">나이, 소득, 위험 성향, 투자 목표 등 재무 프로필을 입력합니다.</p>
-          </div>
-          <div class="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:bg-gray-800 transition group animate-fadein-scroll">
-            <div class="w-10 h-10 bg-navy-600 rounded-lg flex items-center justify-center text-white text-lg font-bold mb-4 group-hover:scale-110 transition-transform">2</div>
-            <h3 class="font-semibold text-base mb-2">자산 입력</h3>
-            <p class="text-gray-400 text-sm leading-relaxed">예금, 주식, 부동산, 연금 등 11가지 유형의 자산을 상세하게 등록합니다.</p>
-          </div>
-          <div class="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:bg-gray-800 transition group animate-fadein-scroll">
-            <div class="w-10 h-10 bg-navy-600 rounded-lg flex items-center justify-center text-white text-lg font-bold mb-4 group-hover:scale-110 transition-transform">3</div>
-            <h3 class="font-semibold text-base mb-2">AI 상담 실행</h3>
-            <p class="text-gray-400 text-sm leading-relaxed">시장 조사, 거시경제, 세법 해석까지 4개 에이전트가 종합 리포트를 생성합니다.</p>
-          </div>
-        </div>
+      <div class="hidden lg:flex justify-center animate-fadein animation-delay-500">
+        <img src="/static/images/bullz.png" alt="" class="w-72 animate-float" />
       </div>
     </section>
-
-    <section class="py-16">
-      <div class="max-w-7xl mx-auto px-6">
-        <h2 class="text-center text-2xl font-bold mb-12 animate-fadein-scroll">멀티 에이전트 파이프라인</h2>
-        <div class="flex flex-wrap justify-center gap-4 lg:gap-6 animate-fadein-scroll">
-          <div class="bg-gray-800/50 rounded-lg px-5 py-4 border border-gray-700 text-center min-w-[140px]">
-            <p class="text-xs text-navy-200 uppercase tracking-wider mb-1">Step 1</p>
-            <p class="font-semibold text-sm">시장 리서치</p>
-            <p class="text-xs text-gray-500 mt-1">네이버 뉴스 검색</p>
-          </div>
-          <div class="flex items-center text-gray-600 text-xl">&rarr;</div>
-          <div class="bg-gray-800/50 rounded-lg px-5 py-4 border border-gray-700 text-center min-w-[140px]">
-            <p class="text-xs text-navy-200 uppercase tracking-wider mb-1">Step 2</p>
-            <p class="font-semibold text-sm">거시경제 분석</p>
-            <p class="text-xs text-gray-500 mt-1">Tavily 웹 리서치</p>
-          </div>
-          <div class="flex items-center text-gray-600 text-xl">&rarr;</div>
-          <div class="bg-gray-800/50 rounded-lg px-5 py-4 border border-gray-700 text-center min-w-[140px]">
-            <p class="text-xs text-navy-200 uppercase tracking-wider mb-1">Step 3</p>
-            <p class="font-semibold text-sm">세법 해석</p>
-            <p class="text-xs text-gray-500 mt-1">국세법령 조회</p>
-          </div>
-          <div class="flex items-center text-gray-600 text-xl">&rarr;</div>
-          <div class="bg-navy-800/50 rounded-lg px-5 py-4 border border-navy-600 text-center min-w-[140px]">
-            <p class="text-xs text-navy-200 uppercase tracking-wider mb-1">Final</p>
-            <p class="font-semibold text-sm">종합 추천</p>
-            <p class="text-xs text-gray-500 mt-1">맞춤 포트폴리오</p>
-          </div>
+    <section class="max-w-7xl mx-auto px-6 pb-24">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div class="bg-navy-900/60 rounded-xl p-6 border border-navy-700 hover:border-navy-500 transition group">
+          <div class="w-10 h-10 bg-navy-600 rounded-lg flex items-center justify-center text-white text-lg font-bold mb-4 group-hover:scale-110 transition-transform">1</div>
+          <h3 class="font-semibold text-navy-100 mb-2">프로필 등록</h3>
+          <p class="text-gray-400 text-sm">나이, 소득, 위험 성향, 목표를 입력합니다</p>
+        </div>
+        <div class="bg-navy-900/60 rounded-xl p-6 border border-navy-700 hover:border-navy-500 transition group">
+          <div class="w-10 h-10 bg-navy-600 rounded-lg flex items-center justify-center text-white text-lg font-bold mb-4 group-hover:scale-110 transition-transform">2</div>
+          <h3 class="font-semibold text-navy-100 mb-2">자산 등록</h3>
+          <p class="text-gray-400 text-sm">예금, 주식, 연금 등 보유 자산을 등록합니다</p>
+        </div>
+        <div class="bg-navy-900/60 rounded-xl p-6 border border-navy-700 hover:border-navy-500 transition group">
+          <div class="w-10 h-10 bg-navy-600 rounded-lg flex items-center justify-center text-white text-lg font-bold mb-4 group-hover:scale-110 transition-transform">3</div>
+          <h3 class="font-semibold text-navy-100 mb-2">AI 상담 실행</h3>
+          <p class="text-gray-400 text-sm">시장·금리·세법을 분석해 맞춤 리포트를 생성합니다</p>
         </div>
       </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
+        <div class="bg-navy-800/50 rounded-lg px-5 py-4 border border-navy-600 text-center min-w-[140px]">
+          <p class="text-xs text-navy-200 uppercase tracking-wider mb-1">Step 1</p>
+          <p class="text-sm font-semibold">프로필 분석</p>
+        </div>
+        <div class="bg-navy-800/50 rounded-lg px-5 py-4 border border-navy-600 text-center min-w-[140px]">
+          <p class="text-xs text-navy-200 uppercase tracking-wider mb-1">Step 2</p>
+          <p class="text-sm font-semibold">시장 리서치</p>
+        </div>
+        <div class="bg-navy-800/50 rounded-lg px-5 py-4 border border-navy-600 text-center min-w-[140px]">
+          <p class="text-xs text-navy-200 uppercase tracking-wider mb-1">Step 3</p>
+          <p class="text-sm font-semibold">세법 해석</p>
+        </div>
+        <div class="bg-navy-800/50 rounded-lg px-5 py-4 border border-navy-600 text-center min-w-[140px]">
+          <p class="text-xs text-navy-200 uppercase tracking-wider mb-1">Final</p>
+          <p class="text-sm font-semibold">맞춤 리포트</p>
+        </div>
+      </div>
+      <div class="text-center">
+        <button onclick="showAuth()" class="bg-white text-navy-900 px-8 py-3 rounded-lg text-sm font-semibold hover:bg-navy-50 transition shadow-lg animate-fadein-scroll">지금 시작하기</button>
+      </div>
     </section>
-
-    <section class="py-12 text-center">
-      <button onclick="showAuth()" class="bg-white text-navy-900 px-8 py-3 rounded-lg text-sm font-semibold hover:bg-navy-50 transition shadow-lg animate-fadein-scroll">지금 시작하기</button>
-      <p class="text-gray-600 text-xs mt-4">관리자 승인 후 이용 가능합니다</p>
-    </section>
-
-    <footer class="border-t border-gray-800 py-6 text-center text-xs text-gray-700">
-      Wealth Advisor &copy; 2026 &middot; 본 서비스의 분석 결과는 참고용이며, 투자 판단의 근거로 사용할 수 없습니다.
-    </footer>
   </div>
 
   <!-- ════════ Auth ════════ -->
@@ -188,143 +160,379 @@
     </div>
   </div>
 
-  <!-- ════════ Admin Page ════════ -->
-  <div id="admin-page" class="hidden">
-    <nav class="bg-navy-900 text-white">
-      <div class="max-w-7xl mx-auto px-4 h-12 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <img src="/static/images/logo-48.png" alt="" class="w-7 h-7 rounded cursor-pointer" onclick="routeAfterLogin()" />
-          <span class="text-sm font-semibold tracking-tight cursor-pointer" onclick="routeAfterLogin()">Wealth Advisor &mdash; 관리자</span>
-        </div>
-        <div class="flex items-center gap-4 text-xs">
-          <span id="admin-user-name" class="text-navy-200"></span>
-          <button onclick="refreshAdmin()" class="text-navy-200 hover:text-white transition" title="새로고침">&#x21bb;</button>
-          <button onclick="logout()" class="text-navy-200 hover:text-white transition">로그아웃</button>
-        </div>
-      </div>
-    </nav>
-    <main class="max-w-7xl mx-auto px-4 py-5 space-y-5">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="wa-card"><p class="text-xs text-gray-500 uppercase tracking-wider">전체 사용자</p><p id="stat-total" class="text-2xl font-semibold text-navy-200 mt-1">0</p></div>
-        <div class="wa-card"><p class="text-xs text-gray-500 uppercase tracking-wider">승인 완료</p><p id="stat-approved" class="text-2xl font-semibold text-green-400 mt-1">0</p></div>
-        <div class="wa-card"><p class="text-xs text-gray-500 uppercase tracking-wider">승인 대기</p><p id="stat-pending" class="text-2xl font-semibold text-amber-400 mt-1">0</p></div>
-        <div class="wa-card"><p class="text-xs text-gray-500 uppercase tracking-wider">전체 운용 자산</p><p id="stat-total-assets" class="text-2xl font-semibold text-navy-200 mt-1 tabular-nums">0원</p></div>
-      </div>
-      <div id="admin-pending-section" class="bg-amber-950/30 border border-amber-800 rounded-lg p-5">
-        <h2 class="text-sm font-semibold text-amber-300 mb-3">승인 대기 목록</h2>
-        <div id="pending-list" class="space-y-2 text-sm"><p class="text-amber-600 text-xs">대기 중인 사용자가 없습니다</p></div>
-      </div>
-      <div class="wa-card">
-        <h2 class="text-sm font-semibold text-gray-300 mb-3">전체 사용자</h2>
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead><tr class="border-b border-gray-700">
-              <th class="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">이름</th>
-              <th class="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">이메일</th>
-              <th class="text-center px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
-              <th class="text-right px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">자산 항목</th>
-              <th class="text-right px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">총 자산</th>
-              <th class="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">가입일</th>
-              <th class="text-center px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">관리</th>
-            </tr></thead>
-            <tbody id="admin-users-tbody" class="divide-y divide-gray-700"></tbody>
-          </table>
-        </div>
-      </div>
-    </main>
-  </div>
+  <!-- ════════ App Shell (로그인 후 공용 레이아웃) ════════ -->
+  <div id="app-shell" class="hidden">
+    <div class="flex min-h-screen bg-gray-950">
 
-  <!-- ════════ Dashboard ════════ -->
-  <div id="dashboard-page" class="hidden">
-    <nav class="bg-navy-900 text-white">
-      <div class="max-w-7xl mx-auto px-4 h-12 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <img src="/static/images/logo-48.png" alt="" class="w-7 h-7 rounded cursor-pointer" onclick="routeAfterLogin()" />
-          <span class="text-sm font-semibold tracking-tight cursor-pointer" onclick="routeAfterLogin()">Wealth Advisor</span>
+      <!-- ── Sidebar ── -->
+      <aside class="wa-sidebar">
+        <!-- Logo -->
+        <div class="h-14 flex items-center gap-2.5 px-4 border-b border-gray-800 shrink-0">
+          <img src="/static/images/logo-48.png" alt="" class="w-7 h-7 rounded cursor-pointer" onclick="showHome()" />
+          <span class="text-sm font-semibold text-gray-100 tracking-tight">Wealth Advisor</span>
         </div>
-        <div class="flex items-center gap-4 text-xs">
-          <span id="user-name" class="text-navy-100"></span>
-          <button onclick="showBacktest()" class="text-navy-200 hover:text-white transition font-medium">Trading Lab</button>
-          <button onclick="showCheongyak()" class="text-navy-200 hover:text-white transition font-medium">청약 정보</button>
-          <button onclick="refreshDashboard()" class="text-navy-200 hover:text-white transition" title="새로고침">&#x21bb;</button>
-          <button onclick="logout()" class="text-navy-200 hover:text-white transition">로그아웃</button>
-        </div>
-      </div>
-    </nav>
-    <main class="max-w-7xl mx-auto px-4 py-5 space-y-5">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="wa-card"><p class="text-xs text-gray-500 uppercase tracking-wider">총 자산</p><p id="total-assets" class="text-2xl font-semibold text-navy-200 mt-1 tabular-nums">0원</p></div>
-        <div class="wa-card"><p class="text-xs text-gray-500 uppercase tracking-wider">자산 항목</p><p id="asset-count" class="text-2xl font-semibold text-navy-200 mt-1">0개</p></div>
-        <div class="wa-card"><p class="text-xs text-gray-500 uppercase tracking-wider">위험 성향</p><p id="risk-display" class="text-2xl font-semibold text-navy-200 mt-1">-</p></div>
-      </div>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <div class="wa-card">
-          <h2 class="text-sm font-semibold text-gray-300 mb-4">포트폴리오 구성</h2>
-          <div class="relative" style="height:260px"><canvas id="portfolio-chart"></canvas></div>
-          <p id="chart-empty" class="text-gray-600 text-center py-10 hidden text-sm">자산을 등록하면 차트가 표시됩니다</p>
-        </div>
-        <div class="wa-card">
-          <div class="flex items-center justify-between mb-3">
-            <h2 class="text-sm font-semibold text-gray-300">내 프로필</h2>
-            <button onclick="openProfileModal()" class="text-xs text-navy-400 hover:underline">수정</button>
+
+        <!-- Nav -->
+        <nav class="flex-1 p-2 space-y-0.5 overflow-y-auto">
+          <button onclick="switchTab('dashboard')" id="nav-dashboard" class="wa-nav-item">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1m-6 0h6" />
+            </svg>
+            <span>Dashboard</span>
+          </button>
+          <button onclick="switchTab('backtest')" id="nav-backtest" class="wa-nav-item">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+            <span>Trading Lab</span>
+          </button>
+          <button onclick="switchTab('cheongyak')" id="nav-cheongyak" class="wa-nav-item">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            <span>청약 정보</span>
+          </button>
+          <button onclick="switchTab('admin')" id="nav-admin" class="wa-nav-item hidden">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <span>관리자</span>
+          </button>
+        </nav>
+
+        <!-- User + Logout -->
+        <div class="p-3 border-t border-gray-800 shrink-0">
+          <div class="flex items-center gap-2.5 px-2 py-1.5 mb-1">
+            <div id="sidebar-avatar" class="w-6 h-6 rounded-full bg-navy-700 flex items-center justify-center text-xs text-navy-200 font-semibold shrink-0"></div>
+            <span id="sidebar-user-name" class="text-xs text-gray-400 truncate flex-1"></span>
           </div>
-          <div id="profile-info" class="space-y-1 text-sm text-gray-400"><p class="text-gray-600">프로필을 입력해주세요.</p></div>
+          <button onclick="logout()" class="w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs text-gray-500 hover:text-gray-300 hover:bg-gray-800 transition">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            로그아웃
+          </button>
         </div>
-      </div>
-      <div class="wa-card">
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="text-sm font-semibold text-gray-300">자산 목록</h2>
-          <button onclick="openAssetModal()" class="bg-navy-700 text-white px-3 py-1.5 rounded text-xs font-medium hover:bg-navy-800 transition">자산 추가</button>
+      </aside>
+
+      <!-- ── Main Content ── -->
+      <div class="wa-main-content">
+
+        <!-- ── Dashboard Section ── -->
+        <div id="section-dashboard" class="hidden">
+          <header class="wa-section-header">
+            <h1 class="text-base font-semibold text-gray-200">Dashboard</h1>
+            <div class="flex items-center gap-2">
+              <span id="user-name" class="text-xs text-gray-500"></span>
+              <button onclick="refreshDashboard()" class="wa-icon-btn" title="새로고침">&#x21bb;</button>
+            </div>
+          </header>
+          <main class="max-w-7xl mx-auto px-4 py-5 space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="wa-card"><p class="text-xs text-gray-500 uppercase tracking-wider">총 자산</p><p id="total-assets" class="text-2xl font-semibold text-navy-200 mt-1 tabular-nums">0원</p></div>
+              <div class="wa-card"><p class="text-xs text-gray-500 uppercase tracking-wider">자산 항목</p><p id="asset-count" class="text-2xl font-semibold text-navy-200 mt-1">0개</p></div>
+              <div class="wa-card"><p class="text-xs text-gray-500 uppercase tracking-wider">위험 성향</p><p id="risk-display" class="text-2xl font-semibold text-navy-200 mt-1">-</p></div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              <div class="wa-card">
+                <h2 class="text-sm font-semibold text-gray-300 mb-4">포트폴리오 구성</h2>
+                <div class="relative" style="height:260px"><canvas id="portfolio-chart"></canvas></div>
+                <p id="chart-empty" class="text-gray-600 text-center py-10 hidden text-sm">자산을 등록하면 차트가 표시됩니다</p>
+              </div>
+              <div class="wa-card">
+                <div class="flex items-center justify-between mb-3">
+                  <h2 class="text-sm font-semibold text-gray-300">내 프로필</h2>
+                  <button onclick="openProfileModal()" class="text-xs text-navy-400 hover:underline">수정</button>
+                </div>
+                <div id="profile-info" class="space-y-1 text-sm text-gray-400"><p class="text-gray-600">프로필을 입력해주세요.</p></div>
+              </div>
+            </div>
+            <div class="wa-card">
+              <div class="flex items-center justify-between mb-3">
+                <h2 class="text-sm font-semibold text-gray-300">자산 목록</h2>
+                <button onclick="openAssetModal()" class="bg-navy-700 text-white px-3 py-1.5 rounded text-xs font-medium hover:bg-navy-800 transition">자산 추가</button>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                  <thead><tr class="border-b border-gray-700">
+                    <th class="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">자산명</th>
+                    <th class="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">유형</th>
+                    <th class="text-right px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">평가금액</th>
+                    <th class="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">상세</th>
+                    <th class="text-center px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">관리</th>
+                  </tr></thead>
+                  <tbody id="assets-tbody" class="divide-y divide-gray-700">
+                    <tr><td colspan="5" class="px-3 py-8 text-center text-gray-600 text-sm">등록된 자산이 없습니다</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="wa-card">
+              <div class="flex items-center justify-between mb-4">
+                <div><h2 class="text-sm font-semibold text-gray-300">종합 자산 상담</h2><p class="text-xs text-gray-500 mt-0.5">프로필과 보유 자산을 바탕으로 맞춤 분석 리포트를 생성합니다</p></div>
+                <button id="run-agent-btn" onclick="runAgent()" class="bg-navy-700 text-white px-5 py-2 rounded text-sm font-medium hover:bg-navy-800 transition">상담 실행</button>
+              </div>
+              <div id="agent-loading" class="hidden py-8 text-center">
+                <div class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-navy-600 border-t-transparent"></div>
+                <p class="text-gray-500 mt-2 text-sm">분석 리포트를 작성하고 있습니다</p>
+              </div>
+              <div id="agent-result" class="hidden">
+                <div id="agent-result-time" class="text-xs text-gray-500 mb-3"></div>
+                <details id="agent-snapshot" class="border border-gray-700 rounded mb-4">
+                  <summary class="px-4 py-2.5 cursor-pointer hover:bg-gray-700 text-xs font-medium text-gray-400 uppercase tracking-wider">상담 시점 자산 현황</summary>
+                  <div id="agent-snapshot-content" class="px-4 py-3 border-t border-gray-700 bg-gray-800/50 text-sm"></div>
+                </details>
+                <div class="border-b border-gray-700 overflow-x-auto whitespace-nowrap">
+                  <button onclick="switchResultTab('recommendation')" data-tab="recommendation" class="result-tab result-tab-active px-4 py-2 text-xs font-medium uppercase tracking-wider">추천</button>
+                  <button onclick="switchResultTab('market')" data-tab="market" class="result-tab px-4 py-2 text-xs font-medium uppercase tracking-wider">시장 조사</button>
+                  <button onclick="switchResultTab('macro')" data-tab="macro" class="result-tab px-4 py-2 text-xs font-medium uppercase tracking-wider">거시경제</button>
+                  <button onclick="switchResultTab('tax')" data-tab="tax" class="result-tab px-4 py-2 text-xs font-medium uppercase tracking-wider">세법 해석</button>
+                </div>
+                <div id="tab-panel-recommendation" class="tab-panel active wa-tab-panel"></div>
+                <div id="tab-panel-market" class="tab-panel wa-tab-panel"></div>
+                <div id="tab-panel-macro" class="tab-panel wa-tab-panel"></div>
+                <div id="tab-panel-tax" class="tab-panel wa-tab-panel"></div>
+              </div>
+            </div>
+            <div id="past-results-section" class="wa-card hidden">
+              <h2 class="text-sm font-semibold text-gray-300 mb-3">이전 상담 기록</h2>
+              <div id="past-results-list" class="space-y-2"></div>
+            </div>
+            <footer class="text-center text-xs text-gray-600 py-4">본 서비스의 분석 결과는 참고용이며, 투자 판단의 근거로 사용할 수 없습니다.</footer>
+          </main>
         </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead><tr class="border-b border-gray-700">
-              <th class="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">자산명</th>
-              <th class="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">유형</th>
-              <th class="text-right px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">평가금액</th>
-              <th class="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">상세</th>
-              <th class="text-center px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">관리</th>
-            </tr></thead>
-            <tbody id="assets-tbody" class="divide-y divide-gray-700">
-              <tr><td colspan="5" class="px-3 py-8 text-center text-gray-600 text-sm">등록된 자산이 없습니다</td></tr>
-            </tbody>
-          </table>
+
+        <!-- ── Trading Lab Section ── -->
+        <div id="section-backtest" class="hidden">
+          <header class="wa-section-header">
+            <h1 class="text-base font-semibold text-gray-200">Trading Lab</h1>
+          </header>
+          <main class="max-w-7xl mx-auto px-4 py-5 space-y-5">
+            <div class="wa-card border-t-2 border-t-navy-600">
+              <div class="flex items-center gap-3 mb-5">
+                <div class="w-8 h-8 bg-navy-600 rounded-lg flex items-center justify-center">
+                  <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                </div>
+                <div>
+                  <h2 class="text-sm font-semibold text-gray-200">백테스트 설정</h2>
+                  <p class="text-xs text-gray-500">종목과 전략을 선택하고 백테스트를 실행하세요</p>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="relative">
+                  <label class="wa-label">종목 (티커)</label>
+                  <input type="text" id="bt-ticker" placeholder="종목명 또는 티커 검색..." value="AAPL" autocomplete="off"
+                    class="wa-input-auth" oninput="onTickerInput(this.value)" onfocus="onTickerInput(this.value)" onkeydown="onTickerKeydown(event)" />
+                  <div id="bt-ticker-dropdown" class="hidden absolute z-30 left-0 right-0 mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-xl max-h-60 overflow-y-auto"></div>
+                </div>
+                <div>
+                  <label class="wa-label">전략</label>
+                  <select id="bt-strategy" class="wa-input-auth"><option value="">로딩 중...</option></select>
+                </div>
+                <div>
+                  <label class="wa-label">시작일</label>
+                  <input type="date" id="bt-start" class="wa-input-auth" />
+                </div>
+                <div>
+                  <label class="wa-label">종료일</label>
+                  <input type="date" id="bt-end" class="wa-input-auth" />
+                </div>
+                <div>
+                  <label class="wa-label">초기 자본 (원)</label>
+                  <input type="text" id="bt-capital" value="100,000,000" inputmode="numeric" class="wa-input-auth tabular-nums" oninput="formatCapitalInput(this)" />
+                </div>
+                <div class="flex items-end gap-3">
+                  <button onclick="runBacktest()" id="bt-run-btn"
+                    class="flex-1 bg-navy-700 text-white py-3 rounded-lg text-sm font-semibold hover:bg-navy-800 transition shadow-md">백테스트 실행</button>
+                  <button onclick="runGridSearch()" id="bt-grid-btn"
+                    class="flex-1 border border-navy-600 text-navy-200 py-3 rounded-lg text-sm font-medium hover:bg-navy-800/50 transition">파라미터 최적화</button>
+                </div>
+              </div>
+            </div>
+            <div id="bt-loading" class="hidden py-8 text-center">
+              <div class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-navy-600 border-t-transparent"></div>
+              <p id="bt-loading-text" class="text-gray-500 mt-2 text-sm">백테스트 실행 중...</p>
+            </div>
+            <div id="bt-grid-result" class="hidden wa-card border-l-4 border-l-green-500">
+              <h3 class="text-sm font-semibold text-green-400 mb-2">최적 파라미터 탐색 결과</h3>
+              <div id="bt-grid-content" class="text-sm"></div>
+            </div>
+            <div id="bt-metrics" class="hidden grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+              <div class="wa-card text-center"><p class="text-xs text-gray-500 uppercase tracking-wider">총 수익률</p><p id="bt-m-return" class="text-xl font-bold mt-1 tabular-nums">-</p></div>
+              <div class="wa-card text-center"><p class="text-xs text-gray-500 uppercase tracking-wider">연간 수익률</p><p id="bt-m-annual" class="text-xl font-bold mt-1 tabular-nums">-</p></div>
+              <div class="wa-card text-center"><p class="text-xs text-gray-500 uppercase tracking-wider">최대 낙폭</p><p id="bt-m-drawdown" class="text-xl font-bold mt-1 tabular-nums text-red-400">-</p></div>
+              <div class="wa-card text-center"><p class="text-xs text-gray-500 uppercase tracking-wider">매수보유 수익률</p><p id="bt-m-buyhold" class="text-xl font-bold mt-1 tabular-nums">-</p></div>
+              <div class="wa-card text-center"><p class="text-xs text-gray-500 uppercase tracking-wider">총 거래</p><p id="bt-m-trades" class="text-xl font-bold mt-1">-</p></div>
+              <div class="wa-card text-center"><p class="text-xs text-gray-500 uppercase tracking-wider">최종 가치</p><p id="bt-m-final" class="text-xl font-bold mt-1 tabular-nums">-</p></div>
+            </div>
+            <div id="bt-chart-section" class="hidden wa-card">
+              <h2 class="text-sm font-semibold text-gray-300 mb-3">차트</h2>
+              <div style="height:400px"><canvas id="bt-chart"></canvas></div>
+            </div>
+            <div id="bt-ai-section" class="hidden wa-card">
+              <div class="flex items-center justify-between mb-3">
+                <h2 class="text-sm font-semibold text-gray-300">AI 투자 분석</h2>
+                <button onclick="requestAiAnalysis()" id="bt-ai-btn" class="bg-navy-700 text-white px-4 py-1.5 rounded text-xs font-medium hover:bg-navy-800 transition">AI 분석 요청</button>
+              </div>
+              <div id="bt-ai-loading" class="hidden py-4 text-center">
+                <div class="inline-block animate-spin rounded-full h-5 w-5 border-2 border-navy-600 border-t-transparent"></div>
+                <p class="text-gray-400 text-xs mt-1">AI 분석 생성 중...</p>
+              </div>
+              <div id="bt-ai-content" class="prose prose-invert prose-sm max-w-none text-sm leading-relaxed"></div>
+            </div>
+            <div class="wa-card">
+              <h2 class="text-sm font-semibold text-gray-300 mb-3">백테스트 기록</h2>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                  <thead><tr class="border-b border-gray-700">
+                    <th class="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">일시</th>
+                    <th class="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">종목</th>
+                    <th class="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">전략</th>
+                    <th class="text-right px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">수익률</th>
+                    <th class="text-right px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">최종 가치</th>
+                    <th class="text-center px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">관리</th>
+                  </tr></thead>
+                  <tbody id="bt-history-tbody" class="divide-y divide-gray-700">
+                    <tr><td colspan="6" class="px-3 py-6 text-center text-gray-600 text-sm">아직 백테스트 기록이 없습니다</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </main>
         </div>
-      </div>
-      <div class="wa-card">
-        <div class="flex items-center justify-between mb-4">
-          <div><h2 class="text-sm font-semibold text-gray-300">종합 자산 상담</h2><p class="text-xs text-gray-500 mt-0.5">프로필과 보유 자산을 바탕으로 맞춤 분석 리포트를 생성합니다</p></div>
-          <button id="run-agent-btn" onclick="runAgent()" class="bg-navy-700 text-white px-5 py-2 rounded text-sm font-medium hover:bg-navy-800 transition">상담 실행</button>
+
+        <!-- ── 청약 정보 Section ── -->
+        <div id="section-cheongyak" class="hidden">
+          <header class="wa-section-header">
+            <h1 class="text-base font-semibold text-gray-200">청약 정보</h1>
+            <button onclick="refreshCheongyak()" class="wa-icon-btn" title="새로고침">&#x21bb;</button>
+          </header>
+          <main class="max-w-[1600px] mx-auto px-4 py-5 space-y-5">
+            <div class="grid grid-cols-1 lg:grid-cols-6 gap-3">
+              <div class="lg:col-span-5 wa-card" style="padding:0;overflow:hidden">
+                <div id="cy-map" style="height:100%;min-height:500px;width:100%;background:#111827"></div>
+              </div>
+              <div class="space-y-3">
+                <div class="wa-card border-t-2 border-t-emerald-600">
+                  <div class="flex items-center gap-2 mb-4">
+                    <div class="w-7 h-7 bg-emerald-600 rounded-lg flex items-center justify-center">
+                      <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"/></svg>
+                    </div>
+                    <div>
+                      <h2 class="text-sm font-semibold text-gray-200">서울 청약 정보</h2>
+                      <p class="text-xs text-gray-500">한국부동산원 청약홈</p>
+                    </div>
+                  </div>
+                  <div class="space-y-3">
+                    <div class="flex items-center justify-between py-2 border-b border-gray-700/50">
+                      <span class="text-xs text-gray-500">접수중</span>
+                      <span id="cy-stat-active" class="text-lg font-bold text-emerald-400 tabular-nums">-</span>
+                    </div>
+                    <div class="flex items-center justify-between py-2 border-b border-gray-700/50">
+                      <span class="text-xs text-gray-500">접수예정</span>
+                      <span id="cy-stat-upcoming" class="text-lg font-bold text-amber-400 tabular-nums">-</span>
+                    </div>
+                    <div class="flex items-center justify-between py-2 border-b border-gray-700/50">
+                      <span class="text-xs text-gray-500">마감</span>
+                      <span id="cy-stat-closed" class="text-lg font-bold text-gray-500 tabular-nums">-</span>
+                    </div>
+                    <div class="flex items-center justify-between py-2">
+                      <span class="text-xs text-gray-500">전체 공급</span>
+                      <span id="cy-stat-total" class="text-lg font-bold text-navy-200 tabular-nums">-</span>
+                    </div>
+                  </div>
+                  <button onclick="refreshCheongyak()" class="w-full mt-4 text-xs text-navy-200 border border-gray-700 rounded py-2 hover:bg-gray-700 transition">&#x21bb; 새로고침</button>
+                </div>
+                <div class="wa-card">
+                  <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">구별 청약 현황</h3>
+                  <div id="cy-gu-bars" class="space-y-1.5 max-h-[300px] overflow-y-auto"></div>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-1 bg-gray-800 rounded-lg p-1">
+              <button onclick="switchCyTab('all')" data-cy-tab="all" class="cy-tab flex-1 py-2 text-xs font-medium rounded-md transition text-gray-400 flex items-center justify-center gap-1.5 min-w-[80px]">
+                <span class="w-2 h-2 rounded-full bg-gray-400"></span>전체
+              </button>
+              <button onclick="switchCyTab('apt')" data-cy-tab="apt" class="cy-tab cy-tab-active flex-1 py-2 text-xs font-medium rounded-md transition flex items-center justify-center gap-1.5 min-w-[80px]">
+                <span class="w-2 h-2 rounded-full bg-sky-400"></span>APT
+              </button>
+              <button onclick="switchCyTab('officetel')" data-cy-tab="officetel" class="cy-tab flex-1 py-2 text-xs font-medium rounded-md transition text-gray-400 flex items-center justify-center gap-1.5 min-w-[80px]">
+                <span class="w-2 h-2 rounded-full bg-violet-400"></span>오피스텔
+              </button>
+              <button onclick="switchCyTab('remaining')" data-cy-tab="remaining" class="cy-tab flex-1 py-2 text-xs font-medium rounded-md transition text-gray-400 flex items-center justify-center gap-1.5 min-w-[80px]">
+                <span class="w-2 h-2 rounded-full bg-orange-400"></span>무순위
+              </button>
+              <button onclick="switchCyTab('publicrent')" data-cy-tab="publicrent" class="cy-tab flex-1 py-2 text-xs font-medium rounded-md transition text-gray-400 flex items-center justify-center gap-1.5 min-w-[80px]">
+                <span class="w-2 h-2 rounded-full bg-lime-400"></span>공공임대
+              </button>
+              <button onclick="switchCyTab('opt')" data-cy-tab="opt" class="cy-tab flex-1 py-2 text-xs font-medium rounded-md transition text-gray-400 flex items-center justify-center gap-1.5 min-w-[80px]">
+                <span class="w-2 h-2 rounded-full bg-rose-400"></span>임의공급
+              </button>
+            </div>
+            <div id="cy-loading" class="hidden py-8 text-center">
+              <div class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-emerald-600 border-t-transparent"></div>
+              <p class="text-gray-500 mt-2 text-sm">청약 정보를 불러오는 중...</p>
+            </div>
+            <div id="cy-error" class="hidden wa-card border-l-4 border-l-red-500">
+              <p id="cy-error-text" class="text-red-400 text-sm"></p>
+            </div>
+            <div id="cy-list" class="space-y-3"></div>
+            <div id="cy-detail-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+              <div class="wa-modal max-h-[90vh] overflow-y-auto" style="max-width:640px">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 id="cy-detail-title" class="text-sm font-semibold text-gray-300"></h3>
+                  <button onclick="closeModal('cy-detail-modal')" class="text-gray-500 hover:text-gray-300 text-lg">&times;</button>
+                </div>
+                <div id="cy-detail-content" class="space-y-4 text-sm"></div>
+              </div>
+            </div>
+            <footer class="text-center text-xs text-gray-600 py-4">데이터 출처: 한국부동산원 청약홈 (공공데이터포털) &middot; 실제 청약 일정은 청약홈에서 확인하세요.</footer>
+          </main>
         </div>
-        <div id="agent-loading" class="hidden py-8 text-center">
-          <div class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-navy-600 border-t-transparent"></div>
-          <p class="text-gray-500 mt-2 text-sm">분석 리포트를 작성하고 있습니다</p>
+
+        <!-- ── Admin Section ── -->
+        <div id="section-admin" class="hidden">
+          <header class="wa-section-header">
+            <h1 class="text-base font-semibold text-gray-200">관리자</h1>
+            <div class="flex items-center gap-2">
+              <span id="admin-user-name" class="text-xs text-gray-500"></span>
+              <button onclick="refreshAdmin()" class="wa-icon-btn" title="새로고침">&#x21bb;</button>
+            </div>
+          </header>
+          <main class="max-w-7xl mx-auto px-4 py-5 space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div class="wa-card"><p class="text-xs text-gray-500 uppercase tracking-wider">전체 사용자</p><p id="stat-total" class="text-2xl font-semibold text-navy-200 mt-1">0</p></div>
+              <div class="wa-card"><p class="text-xs text-gray-500 uppercase tracking-wider">승인 완료</p><p id="stat-approved" class="text-2xl font-semibold text-green-400 mt-1">0</p></div>
+              <div class="wa-card"><p class="text-xs text-gray-500 uppercase tracking-wider">승인 대기</p><p id="stat-pending" class="text-2xl font-semibold text-amber-400 mt-1">0</p></div>
+              <div class="wa-card"><p class="text-xs text-gray-500 uppercase tracking-wider">전체 운용 자산</p><p id="stat-total-assets" class="text-2xl font-semibold text-navy-200 mt-1 tabular-nums">0원</p></div>
+            </div>
+            <div id="admin-pending-section" class="bg-amber-950/30 border border-amber-800 rounded-lg p-5">
+              <h2 class="text-sm font-semibold text-amber-300 mb-3">승인 대기 목록</h2>
+              <div id="pending-list" class="space-y-2 text-sm"><p class="text-amber-600 text-xs">대기 중인 사용자가 없습니다</p></div>
+            </div>
+            <div class="wa-card">
+              <h2 class="text-sm font-semibold text-gray-300 mb-3">전체 사용자</h2>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                  <thead><tr class="border-b border-gray-700">
+                    <th class="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">이름</th>
+                    <th class="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">이메일</th>
+                    <th class="text-center px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
+                    <th class="text-right px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">자산 항목</th>
+                    <th class="text-right px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">총 자산</th>
+                    <th class="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">가입일</th>
+                    <th class="text-center px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">관리</th>
+                  </tr></thead>
+                  <tbody id="admin-users-tbody" class="divide-y divide-gray-700"></tbody>
+                </table>
+              </div>
+            </div>
+          </main>
         </div>
-        <div id="agent-result" class="hidden">
-          <div id="agent-result-time" class="text-xs text-gray-500 mb-3"></div>
-          <details id="agent-snapshot" class="border border-gray-700 rounded mb-4">
-            <summary class="px-4 py-2.5 cursor-pointer hover:bg-gray-700 text-xs font-medium text-gray-400 uppercase tracking-wider">상담 시점 자산 현황</summary>
-            <div id="agent-snapshot-content" class="px-4 py-3 border-t border-gray-700 bg-gray-800/50 text-sm"></div>
-          </details>
-          <div class="border-b border-gray-700 overflow-x-auto whitespace-nowrap">
-            <button onclick="switchResultTab('recommendation')" data-tab="recommendation" class="result-tab result-tab-active px-4 py-2 text-xs font-medium uppercase tracking-wider">추천</button>
-            <button onclick="switchResultTab('market')" data-tab="market" class="result-tab px-4 py-2 text-xs font-medium uppercase tracking-wider">시장 조사</button>
-            <button onclick="switchResultTab('macro')" data-tab="macro" class="result-tab px-4 py-2 text-xs font-medium uppercase tracking-wider">거시경제</button>
-            <button onclick="switchResultTab('tax')" data-tab="tax" class="result-tab px-4 py-2 text-xs font-medium uppercase tracking-wider">세법 해석</button>
-          </div>
-          <div id="tab-panel-recommendation" class="tab-panel active wa-tab-panel"></div>
-          <div id="tab-panel-market" class="tab-panel wa-tab-panel"></div>
-          <div id="tab-panel-macro" class="tab-panel wa-tab-panel"></div>
-          <div id="tab-panel-tax" class="tab-panel wa-tab-panel"></div>
-        </div>
-      </div>
-      <div id="past-results-section" class="wa-card hidden">
-        <h2 class="text-sm font-semibold text-gray-300 mb-3">이전 상담 기록</h2>
-        <div id="past-results-list" class="space-y-2"></div>
-      </div>
-      <footer class="text-center text-xs text-gray-600 py-4">본 서비스의 분석 결과는 참고용이며, 투자 판단의 근거로 사용할 수 없습니다.</footer>
-    </main>
-  </div>
+
+      </div><!-- /wa-main-content -->
+    </div>
+  </div><!-- /app-shell -->
 
   <!-- ════════ Profile Modal ════════ -->
   <div id="profile-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -349,7 +557,7 @@
 
   <!-- ════════ Asset Modal ════════ -->
   <div id="asset-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-    <div class="wa-modal">
+    <div class="wa-modal max-h-[90vh] overflow-y-auto">
       <h3 id="asset-modal-title" class="text-sm font-semibold text-gray-300 mb-4">자산 추가</h3>
       <form id="asset-form" onsubmit="saveAsset(event)" class="space-y-3">
         <input type="hidden" id="asset-edit-id" />
@@ -367,243 +575,6 @@
         </div>
       </form>
     </div>
-  </div>
-
-  <!-- ════════ Backtest / Trading Lab ════════ -->
-  <div id="backtest-page" class="hidden">
-    <nav class="bg-navy-900 text-white">
-      <div class="max-w-7xl mx-auto px-4 h-12 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <img src="/static/images/logo-48.png" alt="" class="w-7 h-7 rounded cursor-pointer" onclick="routeAfterLogin()" />
-          <span class="text-sm font-semibold tracking-tight">Trading Lab</span>
-        </div>
-        <div class="flex items-center gap-4 text-xs">
-          <button onclick="routeAfterLogin()" class="text-navy-200 hover:text-white transition font-medium">Dashboard</button>
-          <button onclick="showCheongyak()" class="text-navy-200 hover:text-white transition font-medium">청약 정보</button>
-          <button onclick="logout()" class="text-navy-200 hover:text-white transition">로그아웃</button>
-        </div>
-      </div>
-    </nav>
-
-    <main class="max-w-7xl mx-auto px-4 py-5 space-y-5">
-      <!-- Input Form — styled like auth card -->
-      <div class="wa-card border-t-2 border-t-navy-600">
-        <div class="flex items-center gap-3 mb-5">
-          <div class="w-8 h-8 bg-navy-600 rounded-lg flex items-center justify-center">
-            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
-          </div>
-          <div>
-            <h2 class="text-sm font-semibold text-gray-200">백테스트 설정</h2>
-            <p class="text-xs text-gray-500">종목과 전략을 선택하고 백테스트를 실행하세요</p>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="relative">
-            <label class="wa-label">종목 (티커)</label>
-            <input type="text" id="bt-ticker" placeholder="종목명 또는 티커 검색..." value="AAPL" autocomplete="off"
-              class="wa-input-auth" oninput="onTickerInput(this.value)" onfocus="onTickerInput(this.value)" onkeydown="onTickerKeydown(event)" />
-            <div id="bt-ticker-dropdown" class="hidden absolute z-30 left-0 right-0 mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-xl max-h-60 overflow-y-auto"></div>
-          </div>
-          <div>
-            <label class="wa-label">전략</label>
-            <select id="bt-strategy" class="wa-input-auth"><option value="">로딩 중...</option></select>
-          </div>
-          <div>
-            <label class="wa-label">시작일</label>
-            <input type="date" id="bt-start" class="wa-input-auth" />
-          </div>
-          <div>
-            <label class="wa-label">종료일</label>
-            <input type="date" id="bt-end" class="wa-input-auth" />
-          </div>
-          <div>
-            <label class="wa-label">초기 자본 (원)</label>
-            <input type="text" id="bt-capital" value="100,000,000" inputmode="numeric" class="wa-input-auth tabular-nums" oninput="formatCapitalInput(this)" />
-          </div>
-          <div class="flex items-end gap-3">
-            <button onclick="runBacktest()" id="bt-run-btn"
-              class="flex-1 bg-navy-700 text-white py-3 rounded-lg text-sm font-semibold hover:bg-navy-800 transition shadow-md">백테스트 실행</button>
-            <button onclick="runGridSearch()" id="bt-grid-btn"
-              class="flex-1 border border-navy-600 text-navy-200 py-3 rounded-lg text-sm font-medium hover:bg-navy-800/50 transition">파라미터 최적화</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Loading -->
-      <div id="bt-loading" class="hidden py-8 text-center">
-        <div class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-navy-600 border-t-transparent"></div>
-        <p id="bt-loading-text" class="text-gray-500 mt-2 text-sm">백테스트 실행 중...</p>
-      </div>
-
-      <!-- Grid Search Result -->
-      <div id="bt-grid-result" class="hidden wa-card border-l-4 border-l-green-500">
-        <h3 class="text-sm font-semibold text-green-400 mb-2">최적 파라미터 탐색 결과</h3>
-        <div id="bt-grid-content" class="text-sm"></div>
-      </div>
-
-      <!-- Metrics -->
-      <div id="bt-metrics" class="hidden grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        <div class="wa-card text-center"><p class="text-xs text-gray-500 uppercase tracking-wider">총 수익률</p><p id="bt-m-return" class="text-xl font-bold mt-1 tabular-nums">-</p></div>
-        <div class="wa-card text-center"><p class="text-xs text-gray-500 uppercase tracking-wider">연간 수익률</p><p id="bt-m-annual" class="text-xl font-bold mt-1 tabular-nums">-</p></div>
-        <div class="wa-card text-center"><p class="text-xs text-gray-500 uppercase tracking-wider">최대 낙폭</p><p id="bt-m-drawdown" class="text-xl font-bold mt-1 tabular-nums text-red-400">-</p></div>
-        <div class="wa-card text-center"><p class="text-xs text-gray-500 uppercase tracking-wider">매수보유 수익률</p><p id="bt-m-buyhold" class="text-xl font-bold mt-1 tabular-nums">-</p></div>
-        <div class="wa-card text-center"><p class="text-xs text-gray-500 uppercase tracking-wider">총 거래</p><p id="bt-m-trades" class="text-xl font-bold mt-1">-</p></div>
-        <div class="wa-card text-center"><p class="text-xs text-gray-500 uppercase tracking-wider">최종 가치</p><p id="bt-m-final" class="text-xl font-bold mt-1 tabular-nums">-</p></div>
-      </div>
-
-      <!-- Chart -->
-      <div id="bt-chart-section" class="hidden wa-card">
-        <h2 class="text-sm font-semibold text-gray-300 mb-3">차트</h2>
-        <div style="height:400px"><canvas id="bt-chart"></canvas></div>
-      </div>
-
-      <!-- AI Analysis -->
-      <div id="bt-ai-section" class="hidden wa-card">
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="text-sm font-semibold text-gray-300">AI 투자 분석</h2>
-          <button onclick="requestAiAnalysis()" id="bt-ai-btn" class="bg-navy-700 text-white px-4 py-1.5 rounded text-xs font-medium hover:bg-navy-800 transition">AI 분석 요청</button>
-        </div>
-        <div id="bt-ai-loading" class="hidden py-4 text-center">
-          <div class="inline-block animate-spin rounded-full h-5 w-5 border-2 border-navy-600 border-t-transparent"></div>
-          <p class="text-gray-400 text-xs mt-1">AI 분석 생성 중...</p>
-        </div>
-        <div id="bt-ai-content" class="prose prose-invert prose-sm max-w-none text-sm leading-relaxed"></div>
-      </div>
-
-      <!-- History -->
-      <div class="wa-card">
-        <h2 class="text-sm font-semibold text-gray-300 mb-3">백테스트 기록</h2>
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead><tr class="border-b border-gray-700">
-              <th class="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">일시</th>
-              <th class="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">종목</th>
-              <th class="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">전략</th>
-              <th class="text-right px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">수익률</th>
-              <th class="text-right px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">최종 가치</th>
-              <th class="text-center px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">관리</th>
-            </tr></thead>
-            <tbody id="bt-history-tbody" class="divide-y divide-gray-700">
-              <tr><td colspan="6" class="px-3 py-6 text-center text-gray-600 text-sm">아직 백테스트 기록이 없습니다</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <!-- ════════ 청약 정보 ════════ -->
-  <div id="cheongyak-page" class="hidden">
-    <nav class="bg-navy-900 text-white">
-      <div class="max-w-[1600px] mx-auto px-4 h-12 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <img src="/static/images/logo-48.png" alt="" class="w-7 h-7 rounded cursor-pointer" onclick="routeAfterLogin()" />
-          <span class="text-sm font-semibold tracking-tight">청약 정보</span>
-        </div>
-        <div class="flex items-center gap-4 text-xs">
-          <button onclick="routeAfterLogin()" class="text-navy-200 hover:text-white transition font-medium">Dashboard</button>
-          <button onclick="showBacktest()" class="text-navy-200 hover:text-white transition font-medium">Trading Lab</button>
-          <button onclick="logout()" class="text-navy-200 hover:text-white transition">로그아웃</button>
-        </div>
-      </div>
-    </nav>
-
-    <main class="max-w-[1600px] mx-auto px-4 py-5 space-y-5">
-      <!-- Map + Summary Row -->
-      <div class="grid grid-cols-1 lg:grid-cols-6 gap-3">
-        <!-- Map (5/6) -->
-        <div class="lg:col-span-5 wa-card" style="padding:0;overflow:hidden">
-          <div id="cy-map" style="height:100%;min-height:500px;width:100%;background:#111827"></div>
-        </div>
-        <!-- Summary + Legend (1/6) -->
-        <div class="space-y-3">
-          <div class="wa-card border-t-2 border-t-emerald-600">
-            <div class="flex items-center gap-2 mb-4">
-              <div class="w-7 h-7 bg-emerald-600 rounded-lg flex items-center justify-center">
-                <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"/></svg>
-              </div>
-              <div>
-                <h2 class="text-sm font-semibold text-gray-200">서울 청약 정보</h2>
-                <p class="text-xs text-gray-500">한국부동산원 청약홈</p>
-              </div>
-            </div>
-            <div class="space-y-3">
-              <div class="flex items-center justify-between py-2 border-b border-gray-700/50">
-                <span class="text-xs text-gray-500">접수중</span>
-                <span id="cy-stat-active" class="text-lg font-bold text-emerald-400 tabular-nums">-</span>
-              </div>
-              <div class="flex items-center justify-between py-2 border-b border-gray-700/50">
-                <span class="text-xs text-gray-500">접수예정</span>
-                <span id="cy-stat-upcoming" class="text-lg font-bold text-amber-400 tabular-nums">-</span>
-              </div>
-              <div class="flex items-center justify-between py-2 border-b border-gray-700/50">
-                <span class="text-xs text-gray-500">마감</span>
-                <span id="cy-stat-closed" class="text-lg font-bold text-gray-500 tabular-nums">-</span>
-              </div>
-              <div class="flex items-center justify-between py-2">
-                <span class="text-xs text-gray-500">전체 공급</span>
-                <span id="cy-stat-total" class="text-lg font-bold text-navy-200 tabular-nums">-</span>
-              </div>
-            </div>
-            <button onclick="refreshCheongyak()" class="w-full mt-4 text-xs text-navy-200 border border-gray-700 rounded py-2 hover:bg-gray-700 transition">&#x21bb; 새로고침</button>
-          </div>
-          <!-- District Bar Chart -->
-          <div class="wa-card">
-            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">구별 청약 현황</h3>
-            <div id="cy-gu-bars" class="space-y-1.5 max-h-[300px] overflow-y-auto"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tab Selector -->
-      <div class="flex flex-wrap gap-1 bg-gray-800 rounded-lg p-1">
-        <button onclick="switchCyTab('all')" data-cy-tab="all" class="cy-tab flex-1 py-2 text-xs font-medium rounded-md transition text-gray-400 flex items-center justify-center gap-1.5 min-w-[80px]">
-          <span class="w-2 h-2 rounded-full bg-gray-400"></span>전체
-        </button>
-        <button onclick="switchCyTab('apt')" data-cy-tab="apt" class="cy-tab cy-tab-active flex-1 py-2 text-xs font-medium rounded-md transition flex items-center justify-center gap-1.5 min-w-[80px]">
-          <span class="w-2 h-2 rounded-full bg-sky-400"></span>APT
-        </button>
-        <button onclick="switchCyTab('officetel')" data-cy-tab="officetel" class="cy-tab flex-1 py-2 text-xs font-medium rounded-md transition text-gray-400 flex items-center justify-center gap-1.5 min-w-[80px]">
-          <span class="w-2 h-2 rounded-full bg-violet-400"></span>오피스텔
-        </button>
-        <button onclick="switchCyTab('remaining')" data-cy-tab="remaining" class="cy-tab flex-1 py-2 text-xs font-medium rounded-md transition text-gray-400 flex items-center justify-center gap-1.5 min-w-[80px]">
-          <span class="w-2 h-2 rounded-full bg-orange-400"></span>무순위
-        </button>
-        <button onclick="switchCyTab('publicrent')" data-cy-tab="publicrent" class="cy-tab flex-1 py-2 text-xs font-medium rounded-md transition text-gray-400 flex items-center justify-center gap-1.5 min-w-[80px]">
-          <span class="w-2 h-2 rounded-full bg-lime-400"></span>공공임대
-        </button>
-        <button onclick="switchCyTab('opt')" data-cy-tab="opt" class="cy-tab flex-1 py-2 text-xs font-medium rounded-md transition text-gray-400 flex items-center justify-center gap-1.5 min-w-[80px]">
-          <span class="w-2 h-2 rounded-full bg-rose-400"></span>임의공급
-        </button>
-      </div>
-
-      <!-- Loading -->
-      <div id="cy-loading" class="hidden py-8 text-center">
-        <div class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-emerald-600 border-t-transparent"></div>
-        <p class="text-gray-500 mt-2 text-sm">청약 정보를 불러오는 중...</p>
-      </div>
-
-      <!-- Error -->
-      <div id="cy-error" class="hidden wa-card border-l-4 border-l-red-500">
-        <p id="cy-error-text" class="text-red-400 text-sm"></p>
-      </div>
-
-      <!-- Listing — grouped by 구 -->
-      <div id="cy-list" class="space-y-3"></div>
-
-      <!-- Detail Modal -->
-      <div id="cy-detail-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div class="wa-modal max-h-[90vh] overflow-y-auto" style="max-width:640px">
-          <div class="flex items-center justify-between mb-4">
-            <h3 id="cy-detail-title" class="text-sm font-semibold text-gray-300"></h3>
-            <button onclick="closeModal('cy-detail-modal')" class="text-gray-500 hover:text-gray-300 text-lg">&times;</button>
-          </div>
-          <div id="cy-detail-content" class="space-y-4 text-sm"></div>
-        </div>
-      </div>
-
-      <footer class="text-center text-xs text-gray-600 py-4">데이터 출처: 한국부동산원 청약홈 (공공데이터포털) &middot; 실제 청약 일정은 청약홈에서 확인하세요.</footer>
-    </main>
   </div>
 
   <script src="/static/app.js"></script>

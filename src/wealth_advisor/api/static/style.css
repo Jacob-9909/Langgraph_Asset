@@ -1,3 +1,77 @@
+/* ── App Shell / Sidebar ──────────────────────────── */
+.wa-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: #111827; /* gray-900 */
+  border-right: 1px solid #1f2937; /* gray-800 */
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 20;
+}
+
+.wa-main-content {
+  margin-left: 220px;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 100vh;
+  background: #030712; /* gray-950 */
+}
+
+.wa-section-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(3,7,18,0.85);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid #1f2937;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+}
+
+.wa-nav-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #6b7280; /* gray-500 */
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.wa-nav-item:hover {
+  background: #1f2937; /* gray-800 */
+  color: #e5e7eb; /* gray-200 */
+}
+.wa-nav-item-active {
+  background: rgba(30,58,95,0.5); /* navy-700/50 */
+  color: #b3c1df; /* navy-200 */
+}
+
+.wa-icon-btn {
+  font-size: 1rem;
+  color: #6b7280;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  transition: color 0.15s;
+}
+.wa-icon-btn:hover { color: #e5e7eb; }
+
 /* ── Landing page animations ──────────────────────── */
 @keyframes fadein {
   from { opacity: 0; transform: translateY(16px); }

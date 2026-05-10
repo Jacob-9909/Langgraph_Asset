@@ -134,13 +134,30 @@ function logout() {
 }
 
 /* ── Routing ───────────────────────────────────────── */
+const ALL_TABS = ["dashboard", "backtest", "cheongyak", "admin"];
+
 function hideAllPages() {
   document.getElementById("home-page").classList.add("hidden");
   document.getElementById("auth-page").classList.add("hidden");
-  document.getElementById("dashboard-page").classList.add("hidden");
-  document.getElementById("admin-page").classList.add("hidden");
-  document.getElementById("backtest-page").classList.add("hidden");
-  document.getElementById("cheongyak-page").classList.add("hidden");
+  document.getElementById("app-shell").classList.add("hidden");
+}
+
+function showAppShell(isAdmin = false) {
+  hideAllPages();
+  document.getElementById("app-shell").classList.remove("hidden");
+  document.getElementById("sidebar-user-name").textContent = userName || "";
+  const av = document.getElementById("sidebar-avatar");
+  if (av && userName) av.textContent = userName.charAt(0).toUpperCase();
+  document.getElementById("nav-admin").classList.toggle("hidden", !isAdmin);
+}
+
+function switchTab(tab) {
+  ALL_TABS.forEach(t => {
+    document.getElementById(`section-${t}`)?.classList.add("hidden");
+    document.getElementById(`nav-${t}`)?.classList.remove("wa-nav-item-active");
+  });
+  document.getElementById(`section-${tab}`)?.classList.remove("hidden");
+  document.getElementById(`nav-${tab}`)?.classList.add("wa-nav-item-active");
 }
 
 function showHome() {
@@ -155,8 +172,8 @@ function showAuth() {
 }
 
 function showDashboard() {
-  hideAllPages();
-  document.getElementById("dashboard-page").classList.remove("hidden");
+  showAppShell(false);
+  switchTab("dashboard");
   document.getElementById("user-name").textContent = userName || "";
   loadDashboard();
   loadAssets();
@@ -164,15 +181,22 @@ function showDashboard() {
 }
 
 function showBacktest() {
-  hideAllPages();
-  document.getElementById("backtest-page").classList.remove("hidden");
+  showAppShell(false);
+  switchTab("backtest");
   loadStrategies();
   loadBacktestHistory();
 }
 
+function showCheongyak() {
+  showAppShell(false);
+  switchTab("cheongyak");
+  if (!_cyData[_cyTab]) { loadCheongyakTab(_cyTab); }
+  else { setTimeout(() => { _cyInitMap(); if (_cyMap) _cyMap.invalidateSize(); _cyRenderSeoulMap(_cyData[_cyTab]); }, 100); }
+}
+
 function showAdminPage() {
-  hideAllPages();
-  document.getElementById("admin-page").classList.remove("hidden");
+  showAppShell(true);
+  switchTab("admin");
   document.getElementById("admin-user-name").textContent = userName || "";
   loadAdminStats();
   loadAdminUsers();
@@ -1483,12 +1507,6 @@ function _cyRenderGroupedList(filtered, allData) {
   listEl.innerHTML = `<div class="cy-masonry">${groupHtml}</div>`;
 }
 
-function showCheongyak() {
-  hideAllPages();
-  document.getElementById("cheongyak-page").classList.remove("hidden");
-  if (!_cyData[_cyTab]) { loadCheongyakTab(_cyTab); }
-  else { setTimeout(() => { _cyInitMap(); if (_cyMap) _cyMap.invalidateSize(); _cyRenderSeoulMap(_cyData[_cyTab]); }, 100); }
-}
 
 function _cyUpdateTabBadges() {
   const tabs = ["apt", "officetel", "remaining", "publicrent", "opt"];
