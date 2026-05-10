@@ -12,7 +12,7 @@ from fastapi.templating import Jinja2Templates
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
-from .database import Base, engine
+from ..db.session import Base, engine
 from .routers import admin, agent, assets, auth, backtest, cheongyak, dashboard, profile
 
 _HERE = Path(__file__).parent

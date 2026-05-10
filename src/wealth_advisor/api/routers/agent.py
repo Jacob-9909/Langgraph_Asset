@@ -11,14 +11,14 @@ from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.checkpoint.postgres import PostgresSaver
 from sqlalchemy.orm import Session
 
-from langgraph_bootstrap import flush_langfuse_traces, merge_run_config
+from ...core.bootstrap import flush_langfuse_traces, merge_run_config
 
-from ...advisor.config import USE_MEMORY_CHECKPOINTER
-from ...advisor.graph import build_graph
-from ...advisor.state import AssetAdvisoryState
+from ...agent.config import USE_MEMORY_CHECKPOINTER
+from ...agent.graph import build_graph
+from ...agent.state import AssetAdvisoryState
 from ..auth import get_current_user
-from ..database import get_db
-from ..models import AgentResult, User, UserAsset
+from ...db.session import get_db
+from ...db.models import AgentResult, User, UserAsset
 from ..schemas import AgentResultResponse
 
 router = APIRouter(prefix="/api/agent", tags=["agent"])

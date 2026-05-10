@@ -9,8 +9,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..auth import ADMIN_EMAIL, create_access_token, hash_password, verify_password
-from ..database import get_db
-from ..models import User
+from ...db.session import get_db
+from ...db.models import User
 from ..schemas import LoginRequest, RegisterRequest, TokenResponse
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])

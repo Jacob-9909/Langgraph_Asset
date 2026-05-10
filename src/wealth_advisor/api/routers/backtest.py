@@ -9,8 +9,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from ..auth import get_current_user
-from ..database import get_db
-from ..models import BacktestResult, User
+from ...db.session import get_db
+from ...db.models import BacktestResult, User
 from ..schemas import (
     BacktestRequest,
     BacktestResponse,
@@ -19,7 +19,7 @@ from ..schemas import (
     GridSearchResponse,
     StrategyInfo,
 )
-from ...trading.stock_analyzer import DEFAULT_PARAMS, STRATEGY_LABELS, StockAnalyzer
+from ...services.trading.stock_analyzer import DEFAULT_PARAMS, STRATEGY_LABELS, StockAnalyzer
 
 router = APIRouter(prefix="/api/backtest", tags=["backtest"])
 
@@ -207,7 +207,7 @@ async def ai_analysis(
     if row.ai_analysis:
         return {"analysis": row.ai_analysis}
 
-    from ...trading.ai_analysis import generate_analysis
+    from ...services.trading.ai_analysis import generate_analysis
 
     metrics = {
         "total_return": float(row.total_return or 0),

@@ -6,8 +6,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from ..auth import get_current_user
-from ..database import get_db
-from ..models import User, UserAsset
+from ...db.session import get_db
+from ...db.models import User, UserAsset
 from ..schemas import AssetCreate, AssetResponse
 
 router = APIRouter(prefix="/api/assets", tags=["assets"])

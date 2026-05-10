@@ -16,7 +16,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship # sqlalchemy 2.0 부터 도입된 Mapped, mapped_column
 
-from .database import Base
+from .session import Base
 
 
 class User(Base):

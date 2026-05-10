@@ -7,8 +7,8 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from ..auth import get_current_admin
-from ..database import get_db
-from ..models import User, UserAsset
+from ...db.session import get_db
+from ...db.models import User, UserAsset
 from ..schemas import AdminStatsResponse, AdminUserResponse, PendingUserResponse
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])

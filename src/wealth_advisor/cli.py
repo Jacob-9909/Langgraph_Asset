@@ -12,14 +12,16 @@ from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.checkpoint.postgres import PostgresSaver
 from langgraph.types import Command
 
-from langgraph_bootstrap import flush_langfuse_traces, merge_run_config
+from .core.bootstrap import flush_langfuse_traces, load_dotenv_for_example_04, merge_run_config
 
-from .advisor.config import USE_MEMORY_CHECKPOINTER, USER_INPUT_EXAMPLES
-from .advisor.graph import build_graph
-from .advisor.logging_utils import configure_logging
-from .advisor.state import AssetAdvisoryState
-from .advisor.tools.naver_web import require_naver_search_keys
-from .advisor.tools.nts_law import require_law_go_kr_oc
+load_dotenv_for_example_04()
+
+from .agent.config import USE_MEMORY_CHECKPOINTER, USER_INPUT_EXAMPLES
+from .agent.graph import build_graph
+from .core.logging import configure_logging
+from .agent.state import AssetAdvisoryState
+from .agent.tools.naver_web import require_naver_search_keys
+from .agent.tools.nts_law import require_law_go_kr_oc
 
 
 def initial_state(user_line: str) -> AssetAdvisoryState:
